@@ -1,0 +1,2542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漢字フラッシュカード｜全6週 完全版</title>
+<style>
+:root{--brand:#185FA5;--star:#f5a623;--bg:#f5f4f0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;min-height:100vh;}
+header{background:var(--brand);color:#fff;text-align:center;padding:12px 16px 8px;}
+header h1{font-size:18px;font-weight:700;}
+header p{font-size:12px;opacity:.8;margin-top:2px;}
+#tabBar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px;max-width:520px;margin:0 auto;}
+.tab{background:#fff;border:1.5px solid #ddd;border-radius:10px;padding:8px 4px;font-size:11px;cursor:pointer;text-align:center;color:#444;font-weight:600;line-height:1.4;transition:all .15s;}
+.tab:hover{border-color:var(--brand);color:var(--brand);}
+.tab.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+.tab.star-tab{background:#fff8e1;border-color:#f5d87a;color:#b8860b;}
+.tab.star-tab.active{background:var(--star);border-color:var(--star);color:#fff;}
+#cardView,#starView{width:100%;max-width:480px;margin:0 auto;padding:12px;}
+#progress{text-align:center;font-size:13px;color:#666;margin-bottom:6px;}
+#progressBar{height:4px;background:#ddd;border-radius:2px;margin-bottom:8px;}
+#progressFill{height:100%;background:var(--brand);border-radius:2px;transition:width .3s;}
+#groupLabel{text-align:center;font-size:12px;color:#888;margin-bottom:8px;}
+.scene{width:100%;height:360px;perspective:800px;cursor:pointer;margin-bottom:12px;}
+.card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s;}
+.card.flipped{transform:rotateY(180deg);}
+.face{position:absolute;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.1);overflow-y:auto;}
+.face.front{background:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px 28px;}
+.face.back{background:#fff;transform:rotateY(180deg);padding:20px 18px;text-align:center;}
+.kanji-display{font-size:72px;font-weight:700;color:#222;line-height:1.2;font-family:inherit;}
+.tap-hint{font-size:12px;color:#bbb;margin-top:12px;}
+.star-badge{position:absolute;top:12px;right:14px;font-size:22px;color:var(--star);}
+.reading-block{margin-bottom:10px;}
+.reading-jp{font-size:22px;font-weight:700;color:#222;}
+.reading-rm{font-size:14px;color:#888;margin-top:1px;}
+.meaning-label{font-size:11px;color:#aaa;margin:8px 0 3px;text-transform:uppercase;letter-spacing:.5px;}
+.meaning-id{font-size:15px;color:var(--brand);font-weight:600;}
+.meaning-en{font-size:13px;color:#999;}
+.divider{border:none;border-top:1px solid #eee;margin:10px 0;}
+.example{margin-bottom:8px;}
+.ex-tag{display:inline-block;font-size:10px;background:#e8f0fb;color:var(--brand);border-radius:4px;padding:1px 5px;margin-bottom:2px;}
+.ex-jp{font-size:15px;color:#333;}
+.ex-rm{font-size:13px;color:#999;font-style:italic;}
+.ex-id{font-size:14px;color:#555;}
+#nav{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.nav-btn{background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px 18px;font-size:14px;cursor:pointer;flex:1;text-align:center;}
+.nav-btn:hover{background:#f0f0f0;}
+#starBtn{font-size:20px;background:#fff;border:1px solid #ddd;border-radius:10px;padding:8px 14px;cursor:pointer;}
+#starBtn.active{color:var(--star);border-color:var(--star);}
+#starView{display:none;}
+#starHeader{background:var(--brand);color:#fff;border-radius:12px;padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+#starHeader span{font-size:15px;font-weight:700;}
+#clearAllBtn{font-size:12px;background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;}
+.star-item{background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.star-item-kanji{font-size:22px;font-weight:700;}
+.star-item-info{font-size:12px;color:#888;margin-top:2px;}
+.star-remove{background:none;border:none;font-size:18px;color:#ccc;cursor:pointer;}
+.star-remove:hover{color:#e44;}
+#noStars{text-align:center;color:#aaa;padding:40px 0;font-size:14px;}
+footer{text-align:center;font-size:11px;color:#bbb;padding:16px;margin-top:8px;}
+
+/* ===== モード切替バー ===== */
+#modeBar{display:flex;gap:6px;padding:10px 10px 0;max-width:520px;margin:0 auto;}
+.mode-btn{flex:1;padding:10px 4px;font-size:12px;border:1.5px solid #ddd;border-radius:10px;background:#fff;color:#444;font-weight:600;cursor:pointer;text-align:center;line-height:1.3;transition:all .15s;}
+.mode-btn:hover{border-color:var(--brand);color:var(--brand);}
+.mode-btn.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+
+/* ===== クイズ画面 ===== */
+#quizView,#typingView,#kanjiChoiceView,#resultView{display:none;width:100%;max-width:480px;margin:0 auto;padding:12px;}
+
+.quiz-card{background:#fff;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.1);padding:36px 18px 26px;text-align:center;margin-bottom:18px;}
+.quiz-kanji{font-size:56px;font-weight:700;color:#222;line-height:1.1;margin-bottom:14px;word-break:break-all;font-family:inherit;}
+.quiz-prompt{font-size:13px;color:#888;}
+
+.quiz-choices{display:flex;flex-direction:column;gap:8px;}
+.quiz-choice{background:#fff;border:1.5px solid #ddd;border-radius:10px;padding:14px 16px;font-size:16px;cursor:pointer;text-align:left;font-family:inherit;color:#333;transition:all .12s;}
+.quiz-choice:hover:not(:disabled){background:#f5f8fc;border-color:var(--brand);}
+.quiz-choice:disabled{cursor:default;}
+.quiz-choice.correct{background:#e8f5e9;border-color:#4caf50;color:#2e7d32;font-weight:700;}
+.quiz-choice.wrong{background:#ffebee;border-color:#e55353;color:#c62828;font-weight:700;}
+.quiz-choice .num{display:inline-block;width:22px;color:#888;font-weight:600;}
+
+/* ===== 漢字選び画面 ===== */
+.kc-sentence{font-size:20px;line-height:1.9;color:#222;text-align:center;word-break:break-all;}
+.kc-blank{text-decoration:underline;text-decoration-color:var(--brand);text-underline-offset:4px;font-weight:700;color:var(--brand);padding:0 1px;}
+
+/* ===== タイピング画面 ===== */
+.typing-input{width:100%;padding:14px 16px;font-size:18px;border:2px solid #ddd;border-radius:10px;text-align:center;outline:none;font-family:inherit;}
+.typing-input:focus{border-color:var(--brand);}
+.typing-input.correct{border-color:#4caf50;background:#e8f5e9;}
+.typing-input.wrong{border-color:#e55353;background:#ffebee;}
+.typing-submit{width:100%;margin-top:10px;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
+.typing-submit:hover{background:#1049a0;}
+.typing-result{text-align:center;margin-top:14px;min-height:60px;font-size:14px;}
+.typing-result.ok{color:#2e7d32;font-weight:700;}
+.typing-result.ng{color:#c62828;font-weight:700;}
+.typing-result .correct-answer{display:block;font-size:24px;margin-top:6px;color:#2e7d32;}
+.typing-hint-btn{margin-top:14px;width:100%;padding:10px;background:#fff8e1;border:1px solid #f5d87a;border-radius:8px;color:#b8860b;font-size:13px;cursor:pointer;font-family:inherit;}
+.typing-hint-btn:hover{background:#fff3c0;}
+.typing-hint-box{margin-top:10px;padding:12px;background:#fafafa;border-radius:8px;font-size:13px;text-align:left;display:none;}
+.typing-hint-box.show{display:block;}
+.typing-hint-box .hint-jp{color:#222;margin-bottom:3px;}
+.typing-hint-box .hint-rm{color:#888;font-style:italic;margin-bottom:3px;}
+.typing-hint-box .hint-id{color:var(--brand);}
+
+/* ===== 結果画面 ===== */
+.result-box{background:#fff;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.1);padding:24px 18px;text-align:center;margin-bottom:14px;}
+.result-title{font-size:18px;color:var(--brand);font-weight:700;margin-bottom:14px;}
+.result-score{font-size:36px;font-weight:900;color:#222;}
+.result-rate{font-size:14px;color:#666;margin-top:4px;}
+.result-wrong{background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:16px 14px;margin-bottom:14px;}
+.result-wrong h3{font-size:14px;color:#666;margin-bottom:10px;}
+.result-wrong-item{padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;}
+.result-wrong-item:last-child{border-bottom:none;}
+.result-wrong-item .k{font-weight:700;color:#222;font-size:16px;margin-right:8px;}
+.result-wrong-item .r{color:#888;}
+.result-buttons{display:flex;flex-direction:column;gap:8px;}
+.result-buttons button{padding:12px;border:1.5px solid #ddd;border-radius:10px;background:#fff;color:#444;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
+.result-buttons button.primary{background:var(--brand);color:#fff;border-color:var(--brand);}
+.result-buttons button:hover:not(.primary){background:#f5f8fc;}
+.result-buttons button.primary:hover{background:#1049a0;}
+
+/* ===== タッチデバイス :hover 対策（iOS Safari スティッキー hover 問題） ===== */
+@media (hover: none) {
+  .mode-btn:hover:not(.active){background:#fff;color:#444;border-color:#ddd;}
+  .tab:hover:not(.active){background:#fff;border-color:#ddd;color:#444;}
+  .nav-btn:hover{background:#fff;}
+  .quiz-choice:hover:not(:disabled){background:#fff;border-color:#ddd;}
+  .typing-submit:hover{background:var(--brand);}
+  .typing-hint-btn:hover{background:#fff8e1;}
+  .result-buttons button:hover:not(.primary){background:#fff;}
+  .result-buttons button.primary:hover{background:var(--brand);}
+  #pwBtn:hover{background:var(--brand);}
+  .star-remove:hover{color:#ccc;}
+  #clearAllBtn:hover{background:rgba(255,255,255,.2);}
+}
+/* ===== パスワード画面 ===== */
+#pwScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;}
+#pwBox{background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.12);padding:36px 28px;width:90%;max-width:360px;text-align:center;}
+#pwBox h2{font-size:20px;font-weight:700;color:var(--brand);margin-bottom:8px;}
+#pwBox p{font-size:13px;color:#888;margin-bottom:20px;}
+#pwInput{width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:10px;font-size:16px;outline:none;text-align:center;letter-spacing:2px;}
+#pwInput:focus{border-color:var(--brand);}
+#pwBtn{margin-top:14px;width:100%;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
+#pwBtn:hover{background:#1049a0;}
+#pwError{color:#e44;font-size:12px;margin-top:8px;min-height:18px;}
+.week-btn{flex:1;padding:10px 6px;font-size:13px;border:1.5px solid #d8c48a;border-radius:10px;background:#fffdf5;color:#8a6d1b;font-weight:700;cursor:pointer;text-align:center;line-height:1.3;transition:all .15s;}
+.week-btn:hover{border-color:var(--brand);color:var(--brand);}
+.week-btn.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+#weekBar{display:flex;gap:8px;padding:10px 10px 0;max-width:520px;margin:0 auto;}
+@media (hover:none){.week-btn:hover:not(.active){background:#fffdf5;color:#8a6d1b;border-color:#d8c48a;}}
+#examView,#examResultView{display:none;width:100%;max-width:480px;margin:0 auto;padding:12px;}
+.exam-sentence{font-size:19px;line-height:1.95;color:#222;text-align:left;margin-bottom:10px;}
+.exam-sentence u{text-decoration-color:var(--brand);text-decoration-thickness:2px;text-underline-offset:3px;font-weight:700;}
+.ex-sec{display:inline-block;font-size:11px;background:#e8f0fb;color:var(--brand);border-radius:5px;padding:2px 9px;margin-bottom:10px;font-weight:700;}
+.result-wrong-item .ew-q{color:#333;margin-bottom:2px;}
+</style>
+</head>
+<body>
+<div id="pwScreen">
+  <div id="pwBox">
+    <h2>漢字フラッシュカード</h2>
+    <p>パスワードを入力してください</p>
+    <input id="pwInput" type="password" placeholder="••••••••••••" autocomplete="off">
+    <div id="pwError"></div>
+    <button id="pwBtn">Enter</button>
+  </div>
+</div>
+<header><h1>漢字フラッシュカード</h1><p>日本語総まとめ N3 漢字 ／ 全6週 完全版（漢字281〜328まで収録）</p></header>
+
+<div id="modeBar">
+  <button class="mode-btn active" id="modeFlashBtn">📖 フラッシュカード</button>
+  <button class="mode-btn" id="modeQuizBtn">✅ 4択クイズ</button>
+  <button class="mode-btn" id="modeTypingBtn">⌨️ タイピング</button>
+  <button class="mode-btn" id="modeKanjiBtn">✍️ 漢字選び</button>
+</div>
+
+<div id="weekBar"></div>
+<div id="tabBar"></div>
+<div id="cardView">
+  <div id="progress"></div>
+  <div id="progressBar"><div id="progressFill"></div></div>
+  <div id="groupLabel"></div>
+  <div class="scene" id="scene">
+    <div class="card" id="card">
+      <div class="face front" id="front">
+        <div class="kanji-display" id="kanjiDisp"></div>
+        <div class="tap-hint">タップしてめくる</div>
+      </div>
+      <div class="face back" id="back"></div>
+    </div>
+  </div>
+  <div id="nav">
+    <button class="nav-btn" id="prevBtn">← 前へ</button>
+    <button class="nav-btn" id="shuffleBtn">シャッフル</button>
+    <button id="starBtn">☆</button>
+    <button class="nav-btn" id="nextBtn">次へ →</button>
+  </div>
+</div>
+<div id="starView">
+  <div id="starHeader"><span>★ 一覧</span><button id="clearAllBtn">★をすべて外す</button></div>
+  <div id="starList"></div>
+  <div id="noStars" style="display:none">★がついた漢字はありません</div>
+</div>
+
+<!-- ===== 4択クイズ画面 ===== -->
+<div id="quizView">
+  <div id="quizProgress" style="text-align:center;font-size:13px;color:#666;margin-bottom:6px;"></div>
+  <div id="quizProgressBar" style="height:4px;background:#ddd;border-radius:2px;margin-bottom:14px;"><div id="quizProgressFill" style="height:100%;background:var(--brand);border-radius:2px;transition:width .3s;"></div></div>
+  <div class="quiz-card">
+    <div class="quiz-kanji" id="quizKanji"></div>
+    <div class="quiz-prompt">読み方は？</div>
+  </div>
+  <div class="quiz-choices" id="quizChoices"></div>
+</div>
+
+<!-- ===== タイピングクイズ画面 ===== -->
+<div id="typingView">
+  <div id="typingProgress" style="text-align:center;font-size:13px;color:#666;margin-bottom:6px;"></div>
+  <div id="typingProgressBar" style="height:4px;background:#ddd;border-radius:2px;margin-bottom:14px;"><div id="typingProgressFill" style="height:100%;background:var(--brand);border-radius:2px;transition:width .3s;"></div></div>
+  <div class="quiz-card">
+    <div class="quiz-kanji" id="typingKanji"></div>
+    <div class="quiz-prompt">読み方を入力</div>
+  </div>
+  <input class="typing-input" id="typingInput" type="text" placeholder="ひらがな or ローマ字" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <button class="typing-submit" id="typingSubmit">答える</button>
+  <div class="typing-result" id="typingResult"></div>
+  <button class="typing-hint-btn" id="typingHintBtn">💡 ヒント：例文を見る</button>
+  <div class="typing-hint-box" id="typingHintBox"></div>
+</div>
+
+<!-- ===== 漢字選び画面 ===== -->
+<div id="kanjiChoiceView">
+  <div id="kcProgress" style="text-align:center;font-size:13px;color:#666;margin-bottom:6px;"></div>
+  <div id="kcProgressBar" style="height:4px;background:#ddd;border-radius:2px;margin-bottom:14px;"><div id="kcProgressFill" style="height:100%;background:var(--brand);border-radius:2px;transition:width .3s;"></div></div>
+  <div class="quiz-card">
+    <div class="quiz-prompt" style="margin-bottom:12px;">正しい漢字を選んでください</div>
+    <div class="kc-sentence" id="kcSentence"></div>
+  </div>
+  <div class="quiz-choices" id="kcChoices"></div>
+</div>
+
+<!-- ===== 結果画面 ===== -->
+<div id="resultView">
+  <div class="result-box">
+    <div class="result-title" id="resultTitle">✅ 結果</div>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-rate" id="resultRate"></div>
+  </div>
+  <div class="result-wrong" id="resultWrongBox" style="display:none;">
+    <h3>間違えた漢字（★がつきました）</h3>
+    <div id="resultWrongList"></div>
+  </div>
+  <div class="result-buttons">
+    <button class="primary" id="resultRetryBtn">もう一度</button>
+    <button id="resultRetryWrongBtn">間違いだけやり直す</button>
+    <button id="resultMenuBtn">メニューに戻る</button>
+  </div>
+</div>
+
+<!-- ===== 実戦問題画面 ===== -->
+<div id="examView">
+  <div id="examProgress" style="text-align:center;font-size:13px;color:#666;margin-bottom:6px;"></div>
+  <div style="height:4px;background:#ddd;border-radius:2px;margin-bottom:14px;"><div id="examFill" style="height:100%;background:var(--brand);border-radius:2px;transition:width .3s;"></div></div>
+  <div class="quiz-card" style="text-align:left;">
+    <div class="ex-sec" id="examSec"></div>
+    <div class="exam-sentence" id="examSentence"></div>
+    <div class="quiz-prompt" id="examPrompt" style="text-align:left;"></div>
+  </div>
+  <div class="quiz-choices" id="examChoices"></div>
+</div>
+<div id="examResultView">
+  <div class="result-box">
+    <div class="result-title">📝 実戦問題 結果</div>
+    <div class="result-score" id="examScore"></div>
+    <div class="result-rate" id="examRate"></div>
+  </div>
+  <div class="result-wrong" id="examWrongBox" style="display:none;">
+    <h3>まちがえた問題</h3>
+    <div id="examWrongList"></div>
+  </div>
+  <div class="result-buttons">
+    <button class="primary" id="examRetryBtn">もう一度</button>
+    <button id="examMenuBtn">メニューに戻る</button>
+  </div>
+</div>
+
+<script>
+function c(g,k,R,E){return{g,kanji:k,R,E};}
+function r(jp,rm,mid,men){return{jp,rm,mid,men};}
+function e(jp,rm,id,tag){return tag?{jp,rm,id,tag}:{jp,rm,id};}
+function q(num,kanji,reading,sentence,correct,distractors){return{num,kanji,reading,sentence,correct,distractors};}
+/* ===== 第1週 でかける① 語彙データ（1〜6日目） ===== */
+/* --- 1日目 駐車場（漢字1〜8） --- */
+const L1=[
+c('1 駐','駐車',[r('ちゅうしゃ','chūsha','parkir (memarkir mobil)','to park a car')],[e('ここに駐車してもいいですか。','Koko ni chūsha shite mo ii desu ka.','Bolehkah saya parkir di sini?')]),
+c('1 駐','駐車場',[r('ちゅうしゃじょう','chūshajō','tempat parkir','a parking lot')],[e('駐車場は建物の後ろにあります。','Chūshajō wa tatemono no ushiro ni arimasu.','Tempat parkir ada di belakang gedung.')]),
+c('2 無','無休',[r('むきゅう','mukyū','buka tanpa hari libur','open without a holiday')],[e('この店は年中無休です。','Kono mise wa nenjū mukyū desu.','Toko ini buka sepanjang tahun tanpa libur.')]),
+c('2 無','無理な',[r('むりな','muri na','mustahil / memaksakan diri','unreasonable, impossible')],[e('一日で全部終わらせるのは無理です。','Ichinichi de zenbu owaraseru no wa muri desu.','Menyelesaikan semuanya dalam sehari itu mustahil.')]),
+c('2 無','無料',[r('むりょう','muryō','gratis','free of charge')],[e('この駐車場は無料です。','Kono chūshajō wa muryō desu.','Tempat parkir ini gratis.')]),
+c('2 無','無い',[r('ない','nai','tidak ada','to not exist, gone')],[e('財布にお金が無いです。','Saifu ni okane ga nai desu.','Tidak ada uang di dompet.')]),
+c('3 満','満車',[r('まんしゃ','mansha','parkir penuh (mobil)','full (of cars)')],[e('この駐車場は今、満車です。','Kono chūshajō wa ima, mansha desu.','Tempat parkir ini sekarang penuh.')]),
+c('3 満','不満な',[r('ふまんな','fuman na','tidak puas','dissatisfied')],[e('彼はその結果に不満です。','Kare wa sono kekka ni fuman desu.','Dia tidak puas dengan hasil itu.')]),
+c('3 満','満員',[r('まんいん','man-in','penuh (orang)','full (of people)')],[e('朝の電車はいつも満員です。','Asa no densha wa itsumo man-in desu.','Kereta pagi selalu penuh orang.')]),
+c('4 向','方向',[r('ほうこう','hōkō','arah','direction')],[e('駅はどの方向ですか。','Eki wa dono hōkō desu ka.','Stasiun ke arah mana?')]),
+c('4 向','向かう',[r('むかう','mukau','menuju','to head toward, go forward')],[e('今、会社に向かっています。','Ima, kaisha ni mukatte imasu.','Sekarang saya sedang menuju kantor.')]),
+c('4 向','向こう',[r('むこう','mukō','seberang / sisi sana','over there, beyond')],[e('道の向こうにコンビニがあります。','Michi no mukō ni konbini ga arimasu.','Di seberang jalan ada minimarket.')]),
+c('4 向','〜向き',[r('むき','muki','cocok untuk 〜','be suitable for ~')],[e('この本は子ども向きです。','Kono hon wa kodomo muki desu.','Buku ini cocok untuk anak-anak.')]),
+c('5 禁','禁止',[r('きんし','kinshi','larangan','prohibition')],[e('ここは駐車禁止です。','Koko wa chūsha kinshi desu.','Di sini dilarang parkir.')]),
+c('6 関','関心',[r('かんしん','kanshin','minat / perhatian','interest')],[e('私は日本の文化に関心があります。','Watashi wa Nihon no bunka ni kanshin ga arimasu.','Saya tertarik pada budaya Jepang.')]),
+c('6 関','関する',[r('かんする','kan suru','berkaitan dengan','to be related to')],[e('環境に関する本を読みました。','Kankyō ni kan suru hon o yomimashita.','Saya membaca buku tentang lingkungan.')]),
+c('6 関','関係',[r('かんけい','kankei','hubungan','relation, connection')],[e('二人の関係はとてもいいです。','Futari no kankei wa totemo ii desu.','Hubungan mereka berdua sangat baik.')]),
+c('7 係','係',[r('かかり','kakari','penanggung jawab / petugas','person in charge')],[e('受付の係の人に聞いてください。','Uketsuke no kakari no hito ni kiite kudasai.','Silakan tanya kepada petugas resepsionis.')]),
+c('8 断','無断',[r('むだん','mudan','tanpa izin','without permission')],[e('無断で駐車しないでください。','Mudan de chūsha shinaide kudasai.','Jangan parkir tanpa izin.')]),
+c('8 断','断水',[r('だんすい','dansui','pemutusan air','suspension of the water supply')],[e('工事のため、明日は断水します。','Kōji no tame, ashita wa dansui shimasu.','Karena ada perbaikan, besok air akan diputus.')]),
+c('8 断','断る',[r('ことわる','kotowaru','menolak','to refuse')],[e('その仕事を断りました。','Sono shigoto o kotowarimashita.','Saya menolak pekerjaan itu.')]),
+];
+
+/* --- 2日目 横断歩道（漢字9〜16） --- */
+const L2=[
+c('9 横','横断',[r('おうだん','ōdan','penyeberangan','crossing')],[e('車が来るので、横断に気をつけてください。','Kuruma ga kuru node, ōdan ni ki o tsukete kudasai.','Karena ada mobil, hati-hati saat menyeberang.')]),
+c('9 横','横',[r('よこ','yoko','samping','side')],[e('駅の横にコンビニがあります。','Eki no yoko ni konbini ga arimasu.','Di samping stasiun ada minimarket.')]),
+c('9 横','横断歩道',[r('おうだんほどう','ōdan hodō','tempat penyeberangan (zebra cross)','pedestrian crossing')],[e('横断歩道を渡りましょう。','Ōdan hodō o watarimashō.','Ayo menyeberang di zebra cross.')]),
+c('10 押','押す',[r('おす','osu','mendorong / menekan','to push')],[e('このボタンを押してください。','Kono botan o oshite kudasai.','Tolong tekan tombol ini.')]),
+c('10 押','押し入れ',[r('おしいれ','oshiire','lemari (gaya Jepang)','Japanese-style closet')],[e('布団を押し入れにしまいます。','Futon o oshiire ni shimaimasu.','Saya menyimpan futon di dalam lemari.')]),
+c('10 押','押さえる',[r('おさえる','osaeru','menahan / menekan','to hold down')],[e('風で飛ばないように紙を押さえます。','Kaze de tobanai yō ni kami o osaemasu.','Saya menahan kertas agar tidak terbang tertiup angin.')]),
+c('11 式','押しボタン式',[r('おしぼたんしき','oshibotan shiki','tipe tombol tekan','push-button type')],[e('この信号は押しボタン式です。','Kono shingō wa oshibotan shiki desu.','Lampu ini bertipe tombol tekan.')]),
+c('11 式','数式',[r('すうしき','sūshiki','rumus (matematika)','a numerical formula')],[e('黒板に数式を書きました。','Kokuban ni sūshiki o kakimashita.','Saya menulis rumus di papan tulis.')]),
+c('11 式','入学式',[r('にゅうがくしき','nyūgaku shiki','upacara masuk sekolah','school entrance ceremony')],[e('四月に入学式があります。','Shigatsu ni nyūgaku shiki ga arimasu.','Ada upacara masuk sekolah pada bulan April.')]),
+c('12 信','送信',[r('そうしん','sōshin','mengirim (pesan)','to transmit, send')],[e('メールを送信しました。','Mēru o sōshin shimashita.','Saya sudah mengirim email.')]),
+c('12 信','自信',[r('じしん','jishin','percaya diri','confidence')],[e('試験に自信があります。','Shiken ni jishin ga arimasu.','Saya percaya diri menghadapi ujian.')]),
+c('12 信','信じる',[r('しんじる','shinjiru','percaya','to believe')],[e('私は彼を信じています。','Watashi wa kare o shinjite imasu.','Saya percaya kepadanya.')]),
+c('12 信','信用',[r('しんよう','shinyō','kepercayaan','trust')],[e('あの店は信用があります。','Ano mise wa shinyō ga arimasu.','Toko itu dapat dipercaya.')]),
+c('13 号','信号',[r('しんごう','shingō','lampu lalu lintas','traffic light')],[e('信号が赤になりました。','Shingō ga aka ni narimashita.','Lampu lalu lintas menjadi merah.')]),
+c('13 号','〜号車',[r('ごうしゃ','gōsha','gerbong nomor 〜','carriage number ~')],[e('私の席は五号車です。','Watashi no seki wa go-gōsha desu.','Tempat duduk saya ada di gerbong nomor lima.')]),
+c('14 確','正確な',[r('せいかくな','seikaku na','tepat / akurat','accurate')],[e('正確な時間を教えてください。','Seikaku na jikan o oshiete kudasai.','Tolong beri tahu waktu yang tepat.')]),
+c('14 確','確かめる',[r('たしかめる','tashikameru','memastikan','to verify')],[e('もう一度、答えを確かめます。','Mō ichido, kotae o tashikamemasu.','Saya memastikan jawabannya sekali lagi.')]),
+c('14 確','確かな',[r('たしかな','tashika na','pasti','certain')],[e('確かな情報が必要です。','Tashika na jōhō ga hitsuyō desu.','Diperlukan informasi yang pasti.')]),
+c('15 認','確認',[r('かくにん','kakunin','konfirmasi','confirmation')],[e('予約を確認してください。','Yoyaku o kakunin shite kudasai.','Tolong konfirmasi reservasinya.')]),
+c('15 認','認める',[r('みとめる','mitomeru','mengakui / menyetujui','to admit, approve')],[e('彼は自分の失敗を認めました。','Kare wa jibun no shippai o mitomemashita.','Dia mengakui kesalahannya sendiri.')]),
+c('16 飛','飛行場',[r('ひこうじょう','hikōjō','bandara','airport')],[e('飛行場まで車で行きます。','Hikōjō made kuruma de ikimasu.','Saya pergi ke bandara dengan mobil.')]),
+c('16 飛','飛ぶ',[r('とぶ','tobu','terbang','to fly')],[e('鳥が空を飛んでいます。','Tori ga sora o tonde imasu.','Burung sedang terbang di langit.')]),
+];
+
+/* --- 3日目 サイン（漢字17〜24） --- */
+const L3=[
+c('17 非','非常口',[r('ひじょうぐち','hijōguchi','pintu darurat','emergency exit')],[e('非常口はあちらです。','Hijōguchi wa achira desu.','Pintu darurat ada di sebelah sana.')]),
+c('17 非','非常に',[r('ひじょうに','hijō ni','sangat','extremely')],[e('この問題は非常に難しいです。','Kono mondai wa hijō ni muzukashii desu.','Soal ini sangat sulit.')]),
+c('17 非','非常の',[r('ひじょうの','hijō no','darurat','emergency')],[e('非常のときはこのベルを押してください。','Hijō no toki wa kono beru o oshite kudasai.','Saat darurat, tekan bel ini.')]),
+c('18 常','日常',[r('にちじょう','nichijō','sehari-hari','everyday life')],[e('日常の生活を大切にします。','Nichijō no seikatsu o taisetsu ni shimasu.','Saya menghargai kehidupan sehari-hari.')]),
+c('18 常','正常な',[r('せいじょうな','seijō na','normal','normal')],[e('機械は正常に動いています。','Kikai wa seijō ni ugoite imasu.','Mesin bekerja secara normal.')]),
+c('19 階','〜階',[r('かい','kai','lantai 〜','floor')],[e('事務所は三階にあります。','Jimusho wa san-kai ni arimasu.','Kantornya ada di lantai tiga.')]),
+c('20 段','階段',[r('かいだん','kaidan','tangga','stairs')],[e('階段を上って二階へ行きます。','Kaidan o nobotte ni-kai e ikimasu.','Saya naik tangga ke lantai dua.')]),
+c('21 箱','箱',[r('はこ','hako','kotak','a box')],[e('箱の中にプレゼントがあります。','Hako no naka ni purezento ga arimasu.','Ada hadiah di dalam kotak.')]),
+c('21 箱','ごみ箱',[r('ごみばこ','gomibako','tempat sampah','a trash box')],[e('ごみはごみ箱に捨ててください。','Gomi wa gomibako ni sutete kudasai.','Buanglah sampah ke tempat sampah.')]),
+c('22 危','危険な',[r('きけんな','kiken na','berbahaya','dangerous')],[e('ここは危険な場所です。','Koko wa kiken na basho desu.','Ini adalah tempat yang berbahaya.')]),
+c('22 危','危ない',[r('あぶない','abunai','berbahaya','dangerous')],[e('危ないですから、下がってください。','Abunai desu kara, sagatte kudasai.','Karena berbahaya, mundurlah.')]),
+c('23 険','危険',[r('きけん','kiken','bahaya','danger')],[e('高い所は危険です。','Takai tokoro wa kiken desu.','Tempat yang tinggi itu berbahaya.')]),
+c('24 捨','捨てる',[r('すてる','suteru','membuang','to throw away')],[e('いらない物を捨てます。','Iranai mono o sutemasu.','Saya membuang barang yang tidak diperlukan.')]),
+];
+
+/* --- 4日目 駅のホーム（漢字25〜33） --- */
+const L4=[
+c('25 線','線',[r('せん','sen','garis / jalur','a line')],[e('ここに赤い線を引いてください。','Koko ni akai sen o hiite kudasai.','Tolong tarik garis merah di sini.')]),
+c('25 線','〜番線',[r('ばんせん','bansen','jalur nomor 〜','platform number')],[e('電車は三番線から出ます。','Densha wa san-bansen kara demasu.','Kereta berangkat dari jalur nomor tiga.')]),
+c('26 面','画面',[r('がめん','gamen','layar','a screen')],[e('スマホの画面が割れました。','Sumaho no gamen ga waremashita.','Layar ponsel saya pecah.')]),
+c('26 面','〜方面',[r('ほうめん','hōmen','arah / jurusan 〜','direction, area')],[e('新宿方面の電車に乗ります。','Shinjuku hōmen no densha ni norimasu.','Saya naik kereta jurusan Shinjuku.')]),
+c('26 面','全面',[r('ぜんめん','zenmen','seluruh permukaan','the whole surface')],[e('道路が全面通行止めです。','Dōro ga zenmen tsūkōdome desu.','Jalan ditutup total.')]),
+c('27 普','普通',[r('ふつう','futsū','biasa / lokal (kereta)','ordinary, local')],[e('普通電車は各駅に止まります。','Futsū densha wa kakueki ni tomarimasu.','Kereta lokal berhenti di setiap stasiun.')]),
+c('28 各','各駅',[r('かくえき','kakueki','setiap stasiun','every station')],[e('この電車は各駅に止まります。','Kono densha wa kakueki ni tomarimasu.','Kereta ini berhenti di setiap stasiun.')]),
+c('28 各','各自',[r('かくじ','kakuji','masing-masing','each person')],[e('昼ご飯は各自で用意してください。','Hirugohan wa kakuji de yōi shite kudasai.','Siapkan makan siang masing-masing.')]),
+c('28 各','各国',[r('かっこく','kakkoku','setiap negara','each country')],[e('会議に各国の代表が集まりました。','Kaigi ni kakkoku no daihyō ga atsumarimashita.','Perwakilan tiap negara berkumpul dalam rapat.')]),
+c('29 次','次',[r('つぎ','tsugi','berikutnya','next')],[e('次の駅で降ります。','Tsugi no eki de orimasu.','Saya turun di stasiun berikutnya.')]),
+c('29 次','目次',[r('もくじ','mokuji','daftar isi','table of contents')],[e('目次でページを探します。','Mokuji de pēji o sagashimasu.','Saya mencari halaman di daftar isi.')]),
+c('29 次','次回',[r('じかい','jikai','lain kali','next time')],[e('次回は来週の月曜日です。','Jikai wa raishū no getsuyōbi desu.','Lain kali adalah Senin depan.')]),
+c('30 快','快速',[r('かいそく','kaisoku','kereta cepat (rapid)','rapid train')],[e('快速に乗ると早く着きます。','Kaisoku ni noru to hayaku tsukimasu.','Kalau naik kereta cepat akan tiba lebih awal.')]),
+c('31 速','速い',[r('はやい','hayai','cepat','fast')],[e('この電車はとても速いです。','Kono densha wa totemo hayai desu.','Kereta ini sangat cepat.')]),
+c('31 速','高速道路',[r('こうそくどうろ','kōsoku dōro','jalan tol','highway')],[e('高速道路で事故がありました。','Kōsoku dōro de jiko ga arimashita.','Terjadi kecelakaan di jalan tol.')]),
+c('31 速','速度',[r('そくど','sokudo','kecepatan','speed')],[e('速度を落としてください。','Sokudo o otoshite kudasai.','Tolong kurangi kecepatan.')]),
+c('32 過','通過',[r('つうか','tsūka','lewat tanpa berhenti','passing through')],[e('特急はこの駅を通過します。','Tokkyū wa kono eki o tsūka shimasu.','Kereta ekspres melewati stasiun ini tanpa berhenti.')]),
+c('32 過','過ぎる',[r('すぎる','sugiru','lewat / melewati','to pass')],[e('もう八時を過ぎました。','Mō hachi-ji o sugimashita.','Sudah lewat pukul delapan.')]),
+c('32 過','過去',[r('かこ','kako','masa lalu','the past')],[e('過去のことは忘れましょう。','Kako no koto wa wasuremashō.','Ayo lupakan masa lalu.')]),
+c('33 鉄','地下鉄',[r('ちかてつ','chikatetsu','kereta bawah tanah','subway')],[e('地下鉄で会社に通っています。','Chikatetsu de kaisha ni kayotte imasu.','Saya pergi ke kantor naik kereta bawah tanah.')]),
+c('33 鉄','鉄道',[r('てつどう','tetsudō','rel kereta / perkeretaapian','railway')],[e('この町に新しい鉄道ができます。','Kono machi ni atarashii tetsudō ga dekimasu.','Akan dibangun jalur kereta baru di kota ini.')]),
+c('33 鉄','鉄',[r('てつ','tetsu','besi','iron, steel')],[e('このなべは鉄でできています。','Kono nabe wa tetsu de dekite imasu.','Panci ini terbuat dari besi.')]),
+];
+
+/* --- 5日目 特急電車（漢字34〜41） --- */
+const L5=[
+c('34 指','指定席',[r('していせき','shitei seki','kursi reservasi','a reserved seat')],[e('指定席を予約しました。','Shitei seki o yoyaku shimashita.','Saya memesan kursi reservasi.')]),
+c('34 指','指',[r('ゆび','yubi','jari','a finger')],[e('ドアに指をはさみました。','Doa ni yubi o hasamimashita.','Jari saya terjepit pintu.')]),
+c('34 指','指定',[r('してい','shitei','penunjukan / menentukan','to designate')],[e('待ち合わせの場所を指定してください。','Machiawase no basho o shitei shite kudasai.','Tolong tentukan tempat bertemu.')]),
+c('34 指','指輪',[r('ゆびわ','yubiwa','cincin','a ring')],[e('結婚指輪を買いました。','Kekkon yubiwa o kaimashita.','Saya membeli cincin pernikahan.')]),
+c('35 定','定休日',[r('ていきゅうび','teikyūbi','hari libur tetap','regular holiday')],[e('この店の定休日は月曜日です。','Kono mise no teikyūbi wa getsuyōbi desu.','Hari libur tetap toko ini adalah Senin.')]),
+c('35 定','安定',[r('あんてい','antei','stabil','stable')],[e('生活が安定しています。','Seikatsu ga antei shite imasu.','Kehidupan saya stabil.')]),
+c('35 定','不安定',[r('ふあんてい','fuantei','tidak stabil','unstable')],[e('今週は天気が不安定です。','Konshū wa tenki ga fuantei desu.','Cuaca minggu ini tidak stabil.')]),
+c('36 席','席',[r('せき','seki','tempat duduk','a seat')],[e('この席は空いていますか。','Kono seki wa aite imasu ka.','Apakah tempat duduk ini kosong?')]),
+c('36 席','出席',[r('しゅっせき','shusseki','hadir','attendance')],[e('明日の会議に出席します。','Ashita no kaigi ni shusseki shimasu.','Saya akan hadir di rapat besok.')]),
+c('36 席','欠席',[r('けっせき','kesseki','tidak hadir','absence')],[e('病気で学校を欠席しました。','Byōki de gakkō o kesseki shimashita.','Saya tidak masuk sekolah karena sakit.')]),
+c('37 由','自由な',[r('じゆうな','jiyū na','bebas','free')],[e('週末は自由な時間があります。','Shūmatsu wa jiyū na jikan ga arimasu.','Di akhir pekan saya punya waktu bebas.')]),
+c('37 由','自由席',[r('じゆうせき','jiyū seki','kursi bebas (non-reservasi)','non-reserved seat')],[e('自由席に座りました。','Jiyū seki ni suwarimashita.','Saya duduk di kursi bebas.')]),
+c('37 由','理由',[r('りゆう','riyū','alasan','reason')],[e('遅れた理由を教えてください。','Okureta riyū o oshiete kudasai.','Tolong beri tahu alasan keterlambatan.')]),
+c('38 番','番号',[r('ばんごう','bangō','nomor','a number')],[e('電話番号を教えてください。','Denwa bangō o oshiete kudasai.','Tolong beri tahu nomor telepon.')]),
+c('38 番','〜番',[r('ばん','ban','nomor 〜','number ~')],[e('私は三番の窓口へ行きました。','Watashi wa san-ban no madoguchi e ikimashita.','Saya pergi ke loket nomor tiga.')]),
+c('39 窓','窓',[r('まど','mado','jendela','a window')],[e('暑いので窓を開けてもいいですか。','Atsui node mado o akete mo ii desu ka.','Karena panas, bolehkah saya buka jendela?')]),
+c('39 窓','窓口',[r('まどぐち','madoguchi','loket','counter, teller window')],[e('切符は窓口で買います。','Kippu wa madoguchi de kaimasu.','Tiket dibeli di loket.')]),
+c('40 側','窓側',[r('まどがわ','madogawa','sisi jendela','window side')],[e('窓側の席をお願いします。','Madogawa no seki o onegai shimasu.','Tolong kursi di sisi jendela.')]),
+c('40 側','両側',[r('りょうがわ','ryōgawa','kedua sisi','both sides')],[e('道の両側に木があります。','Michi no ryōgawa ni ki ga arimasu.','Ada pohon di kedua sisi jalan.')]),
+c('40 側','右側',[r('みぎがわ','migigawa','sisi kanan','the right side')],[e('銀行は道の右側にあります。','Ginkō wa michi no migigawa ni arimasu.','Bank ada di sisi kanan jalan.')]),
+c('41 路','通路',[r('つうろ','tsūro','lorong','an aisle')],[e('通路側の席に座ります。','Tsūro-gawa no seki ni suwarimasu.','Saya duduk di kursi sisi lorong.')]),
+c('41 路','道路',[r('どうろ','dōro','jalan','a road')],[e('この道路は車が多いです。','Kono dōro wa kuruma ga ōi desu.','Jalan ini banyak mobilnya.')]),
+c('41 路','線路',[r('せんろ','senro','rel kereta','railway track')],[e('線路に物を落とさないでください。','Senro ni mono o otosanaide kudasai.','Jangan menjatuhkan barang ke rel.')]),
+];
+
+/* --- 6日目 バス（漢字42〜50） --- */
+const L6=[
+c('42 停','バス停',[r('ばすてい','basu tei','halte bus','a bus stop')],[e('バス停でバスを待ちます。','Basu tei de basu o machimasu.','Saya menunggu bus di halte.')]),
+c('42 停','停車',[r('ていしゃ','teisha','berhenti (kendaraan)','to stop a vehicle')],[e('電車が駅に停車しました。','Densha ga eki ni teisha shimashita.','Kereta berhenti di stasiun.')]),
+c('43 整','整理',[r('せいり','seiri','merapikan / menata','to tidy up')],[e('机の上を整理します。','Tsukue no ue o seiri shimasu.','Saya merapikan atas meja.')]),
+c('43 整','整理券',[r('せいりけん','seiriken','karcis nomor urut','numbered ticket')],[e('バスに乗ったら整理券を取ります。','Basu ni nottara seiriken o torimasu.','Setelah naik bus, ambil karcis nomor urut.')]),
+c('44 券','乗車券',[r('じょうしゃけん','jōshaken','tiket naik','boarding ticket')],[e('乗車券を見せてください。','Jōshaken o misete kudasai.','Tolong tunjukkan tiket naik Anda.')]),
+c('44 券','回数券',[r('かいすうけん','kaisūken','tiket berlangganan (lembaran)','book of tickets')],[e('回数券を買うと安いです。','Kaisūken o kau to yasui desu.','Kalau beli tiket berlangganan lebih murah.')]),
+c('44 券','駐車券',[r('ちゅうしゃけん','chūshaken','tiket parkir','parking ticket')],[e('駐車券をなくさないでください。','Chūshaken o nakusanaide kudasai.','Jangan menghilangkan tiket parkir.')]),
+c('45 現','現金',[r('げんきん','genkin','uang tunai','cash')],[e('現金で払います。','Genkin de haraimasu.','Saya membayar dengan tunai.')]),
+c('45 現','現れる',[r('あらわれる','arawareru','muncul','to appear')],[e('急に人が現れました。','Kyū ni hito ga arawaremashita.','Tiba-tiba muncul seseorang.')]),
+c('45 現','表現',[r('ひょうげん','hyōgen','ungkapan / ekspresi','expression')],[e('この表現は少し難しいです。','Kono hyōgen wa sukoshi muzukashii desu.','Ungkapan ini agak sulit.')]),
+c('46 両','両親',[r('りょうしん','ryōshin','orang tua','parents')],[e('両親は東京に住んでいます。','Ryōshin wa Tōkyō ni sunde imasu.','Orang tua saya tinggal di Tokyo.')]),
+c('46 両','〜両',[r('りょう','ryō','(penghitung) gerbong','counter for train cars')],[e('この電車は十両あります。','Kono densha wa jū-ryō arimasu.','Kereta ini terdiri dari sepuluh gerbong.')]),
+c('47 替','両替',[r('りょうがえ','ryōgae','tukar uang','money exchange')],[e('銀行で両替をします。','Ginkō de ryōgae o shimasu.','Saya menukar uang di bank.')]),
+c('47 替','取り替える',[r('とりかえる','torikaeru','mengganti','to exchange, replace')],[e('電池を取り替えます。','Denchi o torikaemasu.','Saya mengganti baterai.')]),
+c('47 替','着替える',[r('きがえる','kigaeru','berganti pakaian','to change clothes')],[e('家に帰って服を着替えます。','Ie ni kaette fuku o kigaemasu.','Sepulang ke rumah saya berganti baju.')]),
+c('48 優','優先席',[r('ゆうせんせき','yūsen seki','kursi prioritas','a priority seat')],[e('優先席はお年寄りに譲ります。','Yūsen seki wa otoshiyori ni yuzurimasu.','Kursi prioritas diberikan kepada orang tua.')]),
+c('48 優','優しい',[r('やさしい','yasashii','baik hati / lembut','kind')],[e('彼女はとても優しい人です。','Kanojo wa totemo yasashii hito desu.','Dia orang yang sangat baik hati.')]),
+c('48 優','女優',[r('じょゆう','joyū','aktris','an actress')],[e('好きな女優は誰ですか。','Sukina joyū wa dare desu ka.','Siapa aktris favoritmu?')]),
+c('49 座','座る',[r('すわる','suwaru','duduk','to sit')],[e('どうぞ、ここに座ってください。','Dōzo, koko ni suwatte kudasai.','Silakan duduk di sini.')]),
+c('49 座','座席',[r('ざせき','zaseki','tempat duduk','a seat')],[e('座席の番号を確認します。','Zaseki no bangō o kakunin shimasu.','Saya memeriksa nomor tempat duduk.')]),
+c('49 座','正座',[r('せいざ','seiza','duduk bersimpuh (gaya Jepang)','sitting Japanese style')],[e('畳の上で正座します。','Tatami no ue de seiza shimasu.','Saya duduk bersimpuh di atas tatami.')]),
+c('50 降','降りる',[r('おりる','oriru','turun','to get off')],[e('次の駅で降ります。','Tsugi no eki de orimasu.','Saya turun di stasiun berikutnya.')]),
+c('50 降','降車口',[r('こうしゃぐち','kōshaguchi','pintu turun','exit for getting off')],[e('降車口は前の方です。','Kōshaguchi wa mae no hō desu.','Pintu keluar ada di bagian depan.')]),
+c('50 降','以降',[r('いこう','ikō','setelah / mulai 〜','after, from ~ on')],[e('三時以降なら空いています。','San-ji ikō nara aite imasu.','Saya luang mulai jam tiga ke atas.')]),
+c('50 降','降る',[r('ふる','furu','turun (hujan / salju)','to fall (rain, snow)')],[e('朝から雨が降っています。','Asa kara ame ga futte imasu.','Sejak pagi hujan terus turun.')]),
+];
+
+/* --- 第2週 でかける② --- */
+/* 1日目 レストラン（漢字59〜66） */
+const L7=[
+c('59 準','準備',[r('じゅんび','junbi','persiapan','preparation')],[e('パーティーの準備をします。','Pātī no junbi o shimasu.','Saya menyiapkan pesta.')]),
+c('60 備','備える',[r('そなえる','sonaeru','bersiap / menyiapkan','to prepare, provide for')],[e('地震に備えて水を用意します。','Jishin ni sonaete mizu o yōi shimasu.','Saya menyiapkan air untuk berjaga-jaga terhadap gempa.')]),
+c('61 営','営業',[r('えいぎょう','eigyō','operasional / buka usaha','business, operation')],[e('この店は夜十時まで営業しています。','Kono mise wa yoru jū-ji made eigyō shite imasu.','Toko ini buka sampai pukul sepuluh malam.')]),
+c('62 閉','閉まる',[r('しまる','shimaru','tertutup','to close (intransitive)')],[e('ドアが自動で閉まります。','Doa ga jidō de shimarimasu.','Pintu tertutup secara otomatis.')]),
+c('62 閉','閉める',[r('しめる','shimeru','menutup','to close (transitive)')],[e('寒いので窓を閉めます。','Samui node mado o shimemasu.','Karena dingin, saya menutup jendela.')]),
+c('62 閉','開閉',[r('かいへい','kaihei','buka-tutup','opening and closing')],[e('ドアの開閉に注意してください。','Doa no kaihei ni chūi shite kudasai.','Hati-hati saat membuka dan menutup pintu.')]),
+c('63 案','案内',[r('あんない','annai','panduan / informasi','guidance, information')],[e('駅員が道を案内してくれました。','Ekiin ga michi o annai shite kuremashita.','Petugas stasiun menunjukkan jalan.')]),
+c('63 案','案',[r('あん','an','usulan / rencana','plan, proposal')],[e('何かいい案がありますか。','Nanika ii an ga arimasu ka.','Apakah ada usul yang bagus?')]),
+c('64 内','以内',[r('いない','inai','dalam (batas)','within')],[e('一週間以内に返事をください。','Isshūkan inai ni henji o kudasai.','Tolong balas dalam waktu seminggu.')]),
+c('64 内','内側',[r('うちがわ','uchigawa','bagian dalam','the inside')],[e('黄色い線の内側に立ってください。','Kiiroi sen no uchigawa ni tatte kudasai.','Berdirilah di dalam garis kuning.')]),
+c('64 内','国内',[r('こくない','kokunai','dalam negeri','domestic')],[e('今年は国内を旅行します。','Kotoshi wa kokunai o ryokō shimasu.','Tahun ini saya berwisata di dalam negeri.')]),
+c('65 予','予定',[r('よてい','yotei','rencana / jadwal','plan, schedule')],[e('明日の予定を教えてください。','Ashita no yotei o oshiete kudasai.','Tolong beri tahu jadwal besok.')]),
+c('65 予','予習',[r('よしゅう','yoshū','belajar sebelum kelas','preparatory study')],[e('授業の前に予習します。','Jugyō no mae ni yoshū shimasu.','Saya belajar dulu sebelum pelajaran.')]),
+c('66 約','予約',[r('よやく','yoyaku','reservasi','reservation')],[e('レストランを予約しました。','Resutoran o yoyaku shimashita.','Saya sudah memesan restoran.')]),
+c('66 約','約〜',[r('やく','yaku','kira-kira','approximately')],[e('ここから駅まで約十分です。','Koko kara eki made yaku juppun desu.','Dari sini ke stasiun kira-kira sepuluh menit.')]),
+];
+/* 2日目 禁煙（漢字67〜74） */
+const L8=[
+c('67 煙','禁煙',[r('きんえん','kin-en','dilarang merokok','no smoking')],[e('この店は全席禁煙です。','Kono mise wa zenseki kin-en desu.','Semua kursi di toko ini bebas rokok.')]),
+c('67 煙','煙',[r('けむり','kemuri','asap','smoke')],[e('たばこの煙が苦手です。','Tabako no kemuri ga nigate desu.','Saya tidak tahan dengan asap rokok.')]),
+c('68 当','本当',[r('ほんとう','hontō','benar / sungguh','the truth, really')],[e('それは本当の話です。','Sore wa hontō no hanashi desu.','Itu cerita yang benar.')]),
+c('68 当','当たる',[r('あたる','ataru','kena / menang','to hit, to win')],[e('宝くじが当たりました。','Takarakuji ga atarimashita.','Saya menang lotre.')]),
+c('68 当','当たり前',[r('あたりまえ','atarimae','wajar / tentu saja','natural, obvious')],[e('約束を守るのは当たり前です。','Yakusoku o mamoru no wa atarimae desu.','Menepati janji itu hal yang wajar.')]),
+c('69 全','全部',[r('ぜんぶ','zenbu','semua','all, whole')],[e('宿題を全部終わらせました。','Shukudai o zenbu owarasemashita.','Saya menyelesaikan semua PR.')]),
+c('69 全','安全な',[r('あんぜんな','anzen na','aman','safe')],[e('ここは安全な場所です。','Koko wa anzen na basho desu.','Ini tempat yang aman.')]),
+c('70 客','客',[r('きゃく','kyaku','tamu / pelanggan','customer, guest')],[e('今日はお店に客が多いです。','Kyō wa omise ni kyaku ga ōi desu.','Hari ini banyak pelanggan di toko.')]),
+c('70 客','お客様',[r('おきゃくさま','okyakusama','pelanggan (hormat)','customer (honorific)')],[e('お客様、こちらへどうぞ。','Okyakusama, kochira e dōzo.','Silakan ke sini, Tuan/Nyonya.')]),
+c('71 様','様子',[r('ようす','yōsu','keadaan / situasi','appearance, situation')],[e('外の様子を見てきます。','Soto no yōsu o mite kimasu.','Saya akan melihat keadaan di luar.')]),
+c('71 様','〜様',[r('さま','sama','(gelar hormat untuk nama)','honorific for names')],[e('田中様、お電話です。','Tanaka-sama, odenwa desu.','Bapak Tanaka, ada telepon.')]),
+c('72 解','理解',[r('りかい','rikai','pemahaman','understanding')],[e('説明をよく理解しました。','Setsumei o yoku rikai shimashita.','Saya memahami penjelasannya dengan baik.')]),
+c('72 解','解答',[r('かいとう','kaitō','jawaban','answer')],[e('テストの解答を書きます。','Tesuto no kaitō o kakimasu.','Saya menulis jawaban tes.')]),
+c('72 解','解説',[r('かいせつ','kaisetsu','penjelasan / ulasan','explanation')],[e('先生が問題を解説しました。','Sensei ga mondai o kaisetsu shimashita.','Guru menjelaskan soalnya.')]),
+c('73 協','協力',[r('きょうりょく','kyōryoku','kerja sama','cooperation')],[e('ご協力をお願いします。','Gokyōryoku o onegai shimasu.','Mohon kerja samanya.')]),
+c('74 願','願う',[r('ねがう','negau','berharap / memohon','to wish, to request')],[e('世界の平和を願っています。','Sekai no heiwa o negatte imasu.','Saya mendoakan perdamaian dunia.')]),
+];
+/* 3日目 観光地図（漢字75〜82） */
+const L9=[
+c('75 観','観光',[r('かんこう','kankō','wisata','sightseeing')],[e('京都へ観光に行きます。','Kyōto e kankō ni ikimasu.','Saya pergi berwisata ke Kyoto.')]),
+c('75 観','観客',[r('かんきゃく','kankyaku','penonton','spectator, audience')],[e('会場は観客でいっぱいです。','Kaijō wa kankyaku de ippai desu.','Tempat acara penuh penonton.')]),
+c('76 園','動物園',[r('どうぶつえん','dōbutsuen','kebun binatang','a zoo')],[e('子どもと動物園へ行きました。','Kodomo to dōbutsuen e ikimashita.','Saya pergi ke kebun binatang bersama anak.')]),
+c('77 港','空港',[r('くうこう','kūkō','bandara','airport')],[e('空港まで友だちを迎えに行きます。','Kūkō made tomodachi o mukae ni ikimasu.','Saya menjemput teman ke bandara.')]),
+c('77 港','港',[r('みなと','minato','pelabuhan','port, harbor')],[e('港に大きな船があります。','Minato ni ōkina fune ga arimasu.','Ada kapal besar di pelabuhan.')]),
+c('78 遊','遊園地',[r('ゆうえんち','yūenchi','taman hiburan','amusement park')],[e('遊園地でジェットコースターに乗りました。','Yūenchi de jettokōsutā ni norimashita.','Saya naik roller coaster di taman hiburan.')]),
+c('78 遊','遊ぶ',[r('あそぶ','asobu','bermain','to play')],[e('公園で子どもたちが遊んでいます。','Kōen de kodomotachi ga asonde imasu.','Anak-anak bermain di taman.')]),
+c('79 美','美術館',[r('びじゅつかん','bijutsukan','museum seni','art museum')],[e('美術館で有名な絵を見ました。','Bijutsukan de yūmei na e o mimashita.','Saya melihat lukisan terkenal di museum seni.')]),
+c('79 美','美しい',[r('うつくしい','utsukushii','indah','beautiful')],[e('山からの景色は美しいです。','Yama kara no keshiki wa utsukushii desu.','Pemandangan dari gunung itu indah.')]),
+c('80 術','手術',[r('しゅじゅつ','shujutsu','operasi / bedah','surgery, operation')],[e('来週、手術を受けます。','Raishū, shujutsu o ukemasu.','Minggu depan saya menjalani operasi.')]),
+c('80 術','技術',[r('ぎじゅつ','gijutsu','teknologi / keahlian','technology, technique')],[e('日本の技術はすばらしいです。','Nihon no gijutsu wa subarashii desu.','Teknologi Jepang luar biasa.')]),
+c('81 神','神社',[r('じんじゃ','jinja','kuil Shinto','a shrine')],[e('お正月に神社へ行きます。','Oshōgatsu ni jinja e ikimasu.','Saya pergi ke kuil saat Tahun Baru.')]),
+c('81 神','神様',[r('かみさま','kamisama','dewa / tuhan','a god')],[e('神様にお願いをしました。','Kamisama ni onegai o shimashita.','Saya memanjatkan permohonan kepada Tuhan.')]),
+c('82 寺','お寺',[r('おてら','otera','kuil Buddha','a temple')],[e('古いお寺を見学しました。','Furui otera o kengaku shimashita.','Saya mengunjungi kuil tua.')]),
+c('82 寺','〜寺',[r('じ','ji','kuil 〜','~ temple')],[e('金閣寺はとても有名です。','Kinkaku-ji wa totemo yūmei desu.','Kuil Kinkaku sangat terkenal.')]),
+];
+/* 4日目 街の地図（漢字83〜90） */
+const L10=[
+c('83 役','市役所',[r('しやくしょ','shiyakusho','kantor pemerintah kota','city office')],[e('市役所で書類をもらいます。','Shiyakusho de shorui o moraimasu.','Saya mengambil dokumen di kantor kota.')]),
+c('83 役','役に立つ',[r('やくにたつ','yaku ni tatsu','berguna','to be useful')],[e('この辞書はとても役に立ちます。','Kono jisho wa totemo yaku ni tachimasu.','Kamus ini sangat berguna.')]),
+c('84 郵','郵便',[r('ゆうびん','yūbin','pos','mail')],[e('郵便で荷物を送ります。','Yūbin de nimotsu o okurimasu.','Saya mengirim barang lewat pos.')]),
+c('85 局','郵便局',[r('ゆうびんきょく','yūbinkyoku','kantor pos','post office')],[e('郵便局で切手を買います。','Yūbinkyoku de kitte o kaimasu.','Saya membeli perangko di kantor pos.')]),
+c('85 局','薬局',[r('やっきょく','yakkyoku','apotek','pharmacy')],[e('薬局で風邪薬を買いました。','Yakkyoku de kazegusuri o kaimashita.','Saya membeli obat flu di apotek.')]),
+c('86 交','交番',[r('こうばん','kōban','pos polisi','police box')],[e('道がわからないので交番で聞きました。','Michi ga wakaranai node kōban de kikimashita.','Karena tersesat, saya bertanya di pos polisi.')]),
+c('86 交','交通',[r('こうつう','kōtsū','lalu lintas / transportasi','traffic, transport')],[e('この町は交通が便利です。','Kono machi wa kōtsū ga benri desu.','Transportasi di kota ini nyaman.')]),
+c('86 交','交換',[r('こうかん','kōkan','tukar / menukar','exchange')],[e('友だちと名刺を交換しました。','Tomodachi to meishi o kōkan shimashita.','Saya bertukar kartu nama dengan teman.')]),
+c('87 差','差',[r('さ','sa','selisih / perbedaan','difference')],[e('二人の実力に差があります。','Futari no jitsuryoku ni sa ga arimasu.','Ada selisih kemampuan di antara mereka berdua.')]),
+c('87 差','差出人',[r('さしだしにん','sashidashinin','pengirim','sender')],[e('手紙の差出人を確認します。','Tegami no sashidashinin o kakunin shimasu.','Saya memeriksa pengirim surat.')]),
+c('88 点','交差点',[r('こうさてん','kōsaten','persimpangan','intersection')],[e('次の交差点を右に曲がってください。','Tsugi no kōsaten o migi ni magatte kudasai.','Beloklah ke kanan di persimpangan berikutnya.')]),
+c('88 点','点数',[r('てんすう','tensū','nilai / skor','score, points')],[e('テストの点数が良かったです。','Tesuto no tensū ga yokatta desu.','Nilai tes saya bagus.')]),
+c('89 橋','橋',[r('はし','hashi','jembatan','a bridge')],[e('橋を渡って向こう側へ行きます。','Hashi o watatte mukōgawa e ikimasu.','Saya menyeberang jembatan ke sisi seberang.')]),
+c('89 橋','歩道橋',[r('ほどうきょう','hodōkyō','jembatan penyeberangan','footbridge')],[e('歩道橋を使って道を渡ります。','Hodōkyō o tsukatte michi o watarimasu.','Saya menyeberang jalan lewat jembatan penyeberangan.')]),
+c('90 公','公園',[r('こうえん','kōen','taman','a park')],[e('毎朝、公園を散歩します。','Maiasa, kōen o sanpo shimasu.','Setiap pagi saya jalan-jalan di taman.')]),
+];
+/* 5日目 病院（漢字91〜98） */
+const L11=[
+c('91 受','受ける',[r('うける','ukeru','menerima / mengikuti','to receive, to take')],[e('明日、試験を受けます。','Ashita, shiken o ukemasu.','Besok saya mengikuti ujian.')]),
+c('91 受','受験',[r('じゅけん','juken','ikut ujian masuk','entrance exam')],[e('来年、大学を受験します。','Rainen, daigaku o juken shimasu.','Tahun depan saya ikut ujian masuk universitas.')]),
+c('92 付','受付',[r('うけつけ','uketsuke','resepsi / meja penerima','reception')],[e('受付で名前を書いてください。','Uketsuke de namae o kaite kudasai.','Tolong tulis nama di resepsionis.')]),
+c('92 付','付ける',[r('つける','tsukeru','memasang / menempelkan','to attach, to put on')],[e('名札を服に付けます。','Nafuda o fuku ni tsukemasu.','Saya memasang papan nama di baju.')]),
+c('92 付','片付ける',[r('かたづける','katazukeru','merapikan / membereskan','to tidy up')],[e('使ったあとは片付けてください。','Tsukatta ato wa katazukete kudasai.','Tolong bereskan setelah dipakai.')]),
+c('93 科','科学',[r('かがく','kagaku','ilmu pengetahuan / sains','science')],[e('科学の本を読むのが好きです。','Kagaku no hon o yomu no ga suki desu.','Saya suka membaca buku sains.')]),
+c('93 科','内科',[r('ないか','naika','penyakit dalam','internal medicine')],[e('かぜをひいたので内科へ行きます。','Kaze o hiita node naika e ikimasu.','Karena flu, saya pergi ke bagian penyakit dalam.')]),
+c('93 科','外科',[r('げか','geka','bedah','surgery department')],[e('けがをして外科で診てもらいました。','Kega o shite geka de mite moraimashita.','Saya terluka dan diperiksa di bagian bedah.')]),
+c('94 鼻','鼻',[r('はな','hana','hidung','a nose')],[e('花粉症で鼻がつまります。','Kafunshō de hana ga tsumarimasu.','Hidung saya tersumbat karena alergi serbuk bunga.')]),
+c('94 鼻','耳鼻科',[r('じびか','jibika','THT','ENT department')],[e('耳が痛いので耳鼻科へ行きます。','Mimi ga itai node jibika e ikimasu.','Karena telinga sakit, saya pergi ke THT.')]),
+c('95 婦','主婦',[r('しゅふ','shufu','ibu rumah tangga','housewife')],[e('母は主婦です。','Haha wa shufu desu.','Ibu saya adalah ibu rumah tangga.')]),
+c('95 婦','産婦人科',[r('さんふじんか','sanfujinka','kandungan (obgyn)','obstetrics and gynecology')],[e('産婦人科で診てもらいます。','Sanfujinka de mite moraimasu.','Saya periksa di bagian kandungan.')]),
+c('96 形','形',[r('かたち','katachi','bentuk','shape, form')],[e('この石は面白い形です。','Kono ishi wa omoshiroi katachi desu.','Batu ini bentuknya menarik.')]),
+c('96 形','人形',[r('にんぎょう','ningyō','boneka','doll')],[e('きれいな人形を飾ります。','Kirei na ningyō o kazarimasu.','Saya memajang boneka yang cantik.')]),
+c('96 形','整形外科',[r('せいけいげか','seikei geka','ortopedi','orthopedics')],[e('足を痛めて整形外科へ行きました。','Ashi o itamete seikei geka e ikimashita.','Kaki saya sakit dan pergi ke ortopedi.')]),
+c('97 骨','骨',[r('ほね','hone','tulang','a bone')],[e('魚の骨に気をつけてください。','Sakana no hone ni ki o tsukete kudasai.','Hati-hati dengan tulang ikan.')]),
+c('97 骨','骨折',[r('こっせつ','kossetsu','patah tulang','fracture')],[e('転んで足を骨折しました。','Koronde ashi o kossetsu shimashita.','Saya terjatuh dan kaki saya patah.')]),
+c('98 折','折る',[r('おる','oru','mematahkan / melipat','to break, to fold')],[e('紙を半分に折ります。','Kami o hanbun ni orimasu.','Saya melipat kertas menjadi dua.')]),
+c('98 折','右折',[r('うせつ','usetsu','belok kanan','right turn')],[e('次の角を右折してください。','Tsugi no kado o usetsu shite kudasai.','Beloklah ke kanan di tikungan berikutnya.')]),
+c('98 折','折り紙',[r('おりがみ','origami','origami','origami')],[e('折り紙で鶴を作ります。','Origami de tsuru o tsukurimasu.','Saya membuat bangau dari origami.')]),
+];
+/* 6日目 困ったときは（漢字99〜106） */
+const L12=[
+c('99 困','困る',[r('こまる','komaru','kesulitan / bingung','to be in trouble')],[e('お金がなくて困っています。','Okane ga nakute komatte imasu.','Saya kesulitan karena tidak punya uang.')]),
+c('100 消','消防',[r('しょうぼう','shōbō','pemadam kebakaran','fire fighting')],[e('消防の人が火を消しました。','Shōbō no hito ga hi o keshimashita.','Petugas pemadam memadamkan api.')]),
+c('100 消','消す',[r('けす','kesu','mematikan / menghapus','to turn off, to erase')],[e('部屋を出るとき電気を消します。','Heya o deru toki denki o keshimasu.','Saya mematikan lampu saat keluar kamar.')]),
+c('100 消','消える',[r('きえる','kieru','padam / menghilang','to go out, to disappear')],[e('ろうそくの火が消えました。','Rōsoku no hi ga kiemashita.','Api lilin padam.')]),
+c('101 防','予防',[r('よぼう','yobō','pencegahan','prevention')],[e('病気の予防のために手を洗います。','Byōki no yobō no tame ni te o araimasu.','Saya mencuci tangan untuk mencegah penyakit.')]),
+c('101 防','防ぐ',[r('ふせぐ','fusegu','mencegah','to prevent')],[e('事故を防ぐために注意します。','Jiko o fusegu tame ni chūi shimasu.','Saya berhati-hati untuk mencegah kecelakaan.')]),
+c('102 救','救急車',[r('きゅうきゅうしゃ','kyūkyūsha','ambulans','ambulance')],[e('すぐに救急車を呼んでください。','Sugu ni kyūkyūsha o yonde kudasai.','Segera panggil ambulans.')]),
+c('102 救','救う',[r('すくう','sukū','menyelamatkan','to save, to rescue')],[e('医者が多くの命を救いました。','Isha ga ōku no inochi o sukuimashita.','Dokter menyelamatkan banyak nyawa.')]),
+c('103 警','警官',[r('けいかん','keikan','polisi (petugas)','police officer')],[e('警官が道を教えてくれました。','Keikan ga michi o oshiete kuremashita.','Polisi menunjukkan jalan kepada saya.')]),
+c('104 察','警察',[r('けいさつ','keisatsu','polisi','police')],[e('事故のときは警察に連絡します。','Jiko no toki wa keisatsu ni renraku shimasu.','Saat kecelakaan, saya menghubungi polisi.')]),
+c('104 察','警察署',[r('けいさつしょ','keisatsusho','kantor polisi','police station')],[e('警察署で話を聞かれました。','Keisatsusho de hanashi o kikaremashita.','Saya dimintai keterangan di kantor polisi.')]),
+c('105 故','事故',[r('じこ','jiko','kecelakaan','accident')],[e('昨日、交差点で事故がありました。','Kinō, kōsaten de jiko ga arimashita.','Kemarin ada kecelakaan di persimpangan.')]),
+c('105 故','故障',[r('こしょう','koshō','kerusakan / mogok','breakdown, failure')],[e('エレベーターが故障しています。','Erebētā ga koshō shite imasu.','Lift sedang rusak.')]),
+c('106 伝','伝える',[r('つたえる','tsutaeru','menyampaikan','to convey, to tell')],[e('先生によろしくと伝えてください。','Sensei ni yoroshiku to tsutaete kudasai.','Tolong sampaikan salam saya kepada guru.')]),
+c('106 伝','伝言',[r('でんごん','dengon','pesan (titipan)','a message')],[e('母に伝言を残しました。','Haha ni dengon o nokoshimashita.','Saya meninggalkan pesan untuk ibu.')]),
+c('106 伝','手伝う',[r('てつだう','tetsudau','membantu','to help')],[e('友だちの引っ越しを手伝いました。','Tomodachi no hikkoshi o tetsudaimashita.','Saya membantu teman pindahan.')]),
+];
+
+/* --- 第3週 つかう --- */
+/* 1日目 要冷蔵（漢字114〜122） */
+const L13=[
+c('114 要','必要な',[r('ひつような','hitsuyō na','perlu','necessary')],[e('この手続きにはパスポートが必要です。','Kono tetsuzuki ni wa pasupōto ga hitsuyō desu.','Untuk prosedur ini diperlukan paspor.')]),
+c('114 要','要る',[r('いる','iru','butuh / perlu','to need')],[e('この仕事にはお金が要ります。','Kono shigoto ni wa okane ga irimasu.','Pekerjaan ini membutuhkan uang.')]),
+c('114 要','重要な',[r('じゅうような','jūyō na','penting','important')],[e('これは重要な会議です。','Kore wa jūyō na kaigi desu.','Ini rapat yang penting.')]),
+c('115 冷','冷たい',[r('つめたい','tsumetai','dingin (saat disentuh)','cold')],[e('冷たい水が飲みたいです。','Tsumetai mizu ga nomitai desu.','Saya ingin minum air dingin.')]),
+c('115 冷','冷やす',[r('ひやす','hiyasu','mendinginkan','to cool')],[e('飲み物を冷蔵庫で冷やします。','Nomimono o reizōko de hiyashimasu.','Saya mendinginkan minuman di kulkas.')]),
+c('115 冷','冷房',[r('れいぼう','reibō','AC / pendingin ruangan','air-conditioning')],[e('暑いので冷房をつけます。','Atsui node reibō o tsukemasu.','Karena panas, saya menyalakan AC.')]),
+c('116 蔵','冷蔵庫',[r('れいぞうこ','reizōko','kulkas','refrigerator')],[e('肉を冷蔵庫に入れます。','Niku o reizōko ni iremasu.','Saya memasukkan daging ke kulkas.')]),
+c('117 凍','冷凍庫',[r('れいとうこ','reitōko','freezer','a freezer')],[e('アイスは冷凍庫にあります。','Aisu wa reitōko ni arimasu.','Es krim ada di freezer.')]),
+c('117 凍','凍る',[r('こおる','kōru','membeku','to freeze')],[e('冬は池の水が凍ります。','Fuyu wa ike no mizu ga kōrimasu.','Di musim dingin air kolam membeku.')]),
+c('118 庫','金庫',[r('きんこ','kinko','brankas','a safe')],[e('大事な書類は金庫に入れます。','Daiji na shorui wa kinko ni iremasu.','Dokumen penting saya simpan di brankas.')]),
+c('118 庫','車庫',[r('しゃこ','shako','garasi','a garage')],[e('車を車庫に入れます。','Kuruma o shako ni iremasu.','Saya memasukkan mobil ke garasi.')]),
+c('119 召','召し上がる',[r('めしあがる','meshiagaru','makan (bentuk hormat)','to eat (polite)')],[e('どうぞ召し上がってください。','Dōzo meshiagatte kudasai.','Silakan dinikmati (makan).')]),
+c('120 保','保存する',[r('ほぞんする','hozon suru','menyimpan / mengawetkan','to preserve, to save')],[e('データをUSBに保存します。','Dēta o USB ni hozon shimasu.','Saya menyimpan data ke USB.')]),
+c('121 存','ご存じ',[r('ごぞんじ','gozonji','tahu (bentuk hormat)','to know (honorific)')],[e('この店をご存じですか。','Kono mise o gozonji desu ka.','Apakah Anda tahu toko ini?')]),
+c('121 存','存じません',[r('ぞんじません','zonjimasen','tidak tahu (rendah hati)','I do not know (humble)')],[e('詳しいことは存じません。','Kuwashii koto wa zonjimasen.','Saya tidak tahu detailnya.')]),
+c('122 必','必ず',[r('かならず','kanarazu','pasti / selalu','always, without fail')],[e('明日は必ず来てください。','Ashita wa kanarazu kite kudasai.','Besok tolong datang tanpa gagal.')]),
+c('122 必','必死に',[r('ひっしに','hisshi ni','mati-matian','desperately')],[e('必死に走って電車に間に合いました。','Hisshi ni hashitte densha ni maniaimashita.','Saya lari sekuat tenaga dan sempat naik kereta.')]),
+];
+/* 2日目 消費期限（漢字123〜130） */
+const L14=[
+c('123 費','費用',[r('ひよう','hiyō','biaya','cost, expense')],[e('引っ越しの費用は高いです。','Hikkoshi no hiyō wa takai desu.','Biaya pindahan itu mahal.')]),
+c('123 費','消費者',[r('しょうひしゃ','shōhisha','konsumen','consumer')],[e('消費者の意見を聞きます。','Shōhisha no iken o kikimasu.','Saya mendengar pendapat konsumen.')]),
+c('123 費','会費',[r('かいひ','kaihi','iuran','membership fee')],[e('クラブの会費を払います。','Kurabu no kaihi o haraimasu.','Saya membayar iuran klub.')]),
+c('124 期','期間',[r('きかん','kikan','periode','a period')],[e('試験の期間は一週間です。','Shiken no kikan wa isshūkan desu.','Periode ujian adalah satu minggu.')]),
+c('124 期','定期券',[r('ていきけん','teikiken','kartu langganan transportasi','commuter pass')],[e('電車の定期券を買いました。','Densha no teikiken o kaimashita.','Saya membeli kartu langganan kereta.')]),
+c('124 期','短期',[r('たんき','tanki','jangka pendek','short term')],[e('夏に短期のアルバイトをします。','Natsu ni tanki no arubaito o shimasu.','Musim panas saya kerja paruh waktu jangka pendek.')]),
+c('125 限','期限',[r('きげん','kigen','batas waktu','deadline, time limit')],[e('レポートの期限は金曜日です。','Repōto no kigen wa kin-yōbi desu.','Batas waktu laporan hari Jumat.')]),
+c('125 限','限る',[r('かぎる','kagiru','membatasi','to limit')],[e('参加は学生に限ります。','Sanka wa gakusei ni kagirimasu.','Peserta dibatasi untuk pelajar saja.')]),
+c('125 限','限定',[r('げんてい','gentei','terbatas / limited','limited')],[e('これは期間限定の商品です。','Kore wa kikan gentei no shōhin desu.','Ini produk edisi terbatas waktu.')]),
+c('126 製','製品',[r('せいひん','seihin','produk','product')],[e('この会社の製品は人気です。','Kono kaisha no seihin wa ninki desu.','Produk perusahaan ini populer.')]),
+c('126 製','〜製',[r('せい','sei','buatan 〜','made in ~')],[e('このかばんはイタリア製です。','Kono kaban wa Itaria sei desu.','Tas ini buatan Italia.')]),
+c('127 造','製造',[r('せいぞう','seizō','pembuatan / produksi','manufacture')],[e('この工場で車を製造しています。','Kono kōjō de kuruma o seizō shite imasu.','Mobil diproduksi di pabrik ini.')]),
+c('127 造','造る',[r('つくる','tsukuru','membuat / membangun','to make, to build')],[e('新しい橋を造ります。','Atarashii hashi o tsukurimasu.','Mereka membangun jembatan baru.')]),
+c('128 賞','賞品',[r('しょうひん','shōhin','hadiah (barang)','prize')],[e('一等の賞品は旅行券です。','Ittō no shōhin wa ryokōken desu.','Hadiah utama adalah voucher perjalanan.')]),
+c('128 賞','賞味期限',[r('しょうみきげん','shōmi kigen','batas rasa terbaik','best-before date')],[e('牛乳の賞味期限を確認します。','Gyūnyū no shōmi kigen o kakunin shimasu.','Saya memeriksa tanggal kedaluwarsa susu.')]),
+c('129 法','方法',[r('ほうほう','hōhō','cara / metode','method')],[e('いい方法を教えてください。','Ii hōhō o oshiete kudasai.','Tolong beri tahu cara yang baik.')]),
+c('129 法','文法',[r('ぶんぽう','bunpō','tata bahasa','grammar')],[e('日本語の文法は難しいです。','Nihongo no bunpō wa muzukashii desu.','Tata bahasa Jepang itu sulit.')]),
+c('130 温','温度',[r('おんど','ondo','suhu','temperature')],[e('部屋の温度を調べます。','Heya no ondo o shirabemasu.','Saya memeriksa suhu ruangan.')]),
+c('130 温','温かい',[r('あたたかい','atatakai','hangat','warm')],[e('温かいスープが飲みたいです。','Atatakai sūpu ga nomitai desu.','Saya ingin minum sup hangat.')]),
+c('130 温','気温',[r('きおん','kion','suhu udara','air temperature')],[e('今日は気温が高いです。','Kyō wa kion ga takai desu.','Hari ini suhu udaranya tinggi.')]),
+];
+/* 3日目 自動販売機（漢字131〜138） */
+const L15=[
+c('131 販','販売',[r('はんばい','hanbai','penjualan','sale')],[e('このチケットはコンビニで販売しています。','Kono chiketto wa konbini de hanbai shite imasu.','Tiket ini dijual di minimarket.')]),
+c('131 販','自動販売機',[r('じどうはんばいき','jidō hanbaiki','mesin penjual otomatis','vending machine')],[e('自動販売機でお茶を買います。','Jidō hanbaiki de ocha o kaimasu.','Saya membeli teh di mesin penjual otomatis.')]),
+c('132 機','飛行機',[r('ひこうき','hikōki','pesawat','airplane')],[e('飛行機で北海道へ行きます。','Hikōki de Hokkaidō e ikimasu.','Saya pergi ke Hokkaido naik pesawat.')]),
+c('132 機','機械',[r('きかい','kikai','mesin','machine')],[e('この機械の使い方を教えてください。','Kono kikai no tsukaikata o oshiete kudasai.','Tolong ajari cara memakai mesin ini.')]),
+c('132 機','機会',[r('きかい','kikai','kesempatan','opportunity')],[e('いい機会だから挑戦します。','Ii kikai dakara chōsen shimasu.','Karena kesempatan bagus, saya akan mencoba.')]),
+c('133 増','増える',[r('ふえる','fueru','bertambah','to increase (intr.)')],[e('最近、外国人観光客が増えています。','Saikin, gaikokujin kankōkyaku ga fuete imasu.','Belakangan turis asing bertambah.')]),
+c('133 増','増やす',[r('ふやす','fuyasu','menambah','to increase (tr.)')],[e('貯金を増やしたいです。','Chokin o fuyashitai desu.','Saya ingin menambah tabungan.')]),
+c('133 増','増加',[r('ぞうか','zōka','peningkatan','increase')],[e('この町の人口が増加しています。','Kono machi no jinkō ga zōka shite imasu.','Populasi kota ini meningkat.')]),
+c('134 減','減る',[r('へる','heru','berkurang','to decrease (intr.)')],[e('体重が少し減りました。','Taijū ga sukoshi herimashita.','Berat badan saya sedikit berkurang.')]),
+c('134 減','減らす',[r('へらす','herasu','mengurangi','to reduce (tr.)')],[e('甘い物を減らします。','Amai mono o herashimasu.','Saya mengurangi makanan manis.')]),
+c('134 減','減少',[r('げんしょう','genshō','penurunan','decrease')],[e('子どもの数が減少しています。','Kodomo no kazu ga genshō shite imasu.','Jumlah anak menurun.')]),
+c('135 量','量',[r('りょう','ryō','jumlah / kuantitas','quantity')],[e('この店は料理の量が多いです。','Kono mise wa ryōri no ryō ga ōi desu.','Porsi makanan di toko ini banyak.')]),
+c('135 量','数量',[r('すうりょう','sūryō','kuantitas / jumlah','amount')],[e('数量には限りがあります。','Sūryō ni wa kagiri ga arimasu.','Jumlahnya terbatas.')]),
+c('136 氷','氷',[r('こおり','kōri','es','ice')],[e('ジュースに氷を入れます。','Jūsu ni kōri o iremasu.','Saya memasukkan es ke jus.')]),
+c('137 返','返事',[r('へんじ','henji','balasan / jawaban','reply')],[e('メールの返事をします。','Mēru no henji o shimasu.','Saya membalas email.')]),
+c('137 返','返す',[r('かえす','kaesu','mengembalikan','to return something')],[e('借りた本を返します。','Karita hon o kaeshimasu.','Saya mengembalikan buku yang dipinjam.')]),
+c('137 返','返却',[r('へんきゃく','henkyaku','pengembalian','return')],[e('図書の返却は明日までです。','Tosho no henkyaku wa ashita made desu.','Pengembalian buku sampai besok.')]),
+c('138 湯','お湯',[r('おゆ','oyu','air panas','hot water')],[e('お湯を沸かしてお茶を入れます。','Oyu o wakashite ocha o iremasu.','Saya merebus air lalu menyeduh teh.')]),
+];
+/* 4日目 レシピ（漢字139〜147） */
+const L16=[
+c('139 材','材料',[r('ざいりょう','zairyō','bahan','ingredients, materials')],[e('料理の材料を買います。','Ryōri no zairyō o kaimasu.','Saya membeli bahan masakan.')]),
+c('139 材','教材',[r('きょうざい','kyōzai','bahan ajar','teaching material')],[e('いい教材を探しています。','Ii kyōzai o sagashite imasu.','Saya sedang mencari bahan ajar yang bagus.')]),
+c('140 卵','卵',[r('たまご','tamago','telur','egg')],[e('朝ご飯に卵を食べます。','Asagohan ni tamago o tabemasu.','Saya makan telur untuk sarapan.')]),
+c('140 卵','卵焼き',[r('たまごやき','tamagoyaki','telur dadar Jepang','Japanese omelet')],[e('お弁当に卵焼きを入れます。','Obentō ni tamagoyaki o iremasu.','Saya memasukkan telur dadar ke bekal.')]),
+c('141 乳','牛乳',[r('ぎゅうにゅう','gyūnyū','susu sapi','milk')],[e('毎朝、牛乳を飲みます。','Maiasa, gyūnyū o nomimasu.','Setiap pagi saya minum susu.')]),
+c('142 粉','粉',[r('こな','kona','bubuk / tepung','powder, flour')],[e('粉をふるいにかけます。','Kona o furui ni kakemasu.','Saya mengayak tepung.')]),
+c('142 粉','小麦粉',[r('こむぎこ','komugiko','tepung terigu','wheat flour')],[e('パンは小麦粉で作ります。','Pan wa komugiko de tsukurimasu.','Roti dibuat dari tepung terigu.')]),
+c('143 袋','袋',[r('ふくろ','fukuro','kantong','bag')],[e('買った物を袋に入れます。','Katta mono o fukuro ni iremasu.','Saya memasukkan belanjaan ke kantong.')]),
+c('143 袋','手袋',[r('てぶくろ','tebukuro','sarung tangan','gloves')],[e('寒いので手袋をします。','Samui node tebukuro o shimasu.','Karena dingin saya memakai sarung tangan.')]),
+c('143 袋','紙袋',[r('かみぶくろ','kamibukuro','kantong kertas','paper bag')],[e('紙袋をもらえますか。','Kamibukuro o moraemasu ka.','Bolehkah saya minta kantong kertas?')]),
+c('144 混','混ぜる',[r('まぜる','mazeru','mencampur','to mix')],[e('卵と牛乳をよく混ぜます。','Tamago to gyūnyū o yoku mazemasu.','Saya mengaduk telur dan susu hingga rata.')]),
+c('144 混','混雑',[r('こんざつ','konzatsu','kepadatan / kemacetan','congestion')],[e('朝の駅は混雑しています。','Asa no eki wa konzatsu shite imasu.','Stasiun di pagi hari padat.')]),
+c('145 焼','焼く',[r('やく','yaku','memanggang','to grill, to bake')],[e('魚を焼いて食べます。','Sakana o yaite tabemasu.','Saya memanggang ikan lalu memakannya.')]),
+c('145 焼','焼ける',[r('やける','yakeru','terbakar / matang','to be baked/burnt')],[e('パンがおいしそうに焼けました。','Pan ga oishisō ni yakemashita.','Rotinya matang dengan menggugah selera.')]),
+c('146 表','表',[r('ひょう','hyō','tabel','table (chart)')],[e('予定を表にまとめます。','Yotei o hyō ni matomemasu.','Saya merangkum jadwal dalam tabel.')]),
+c('146 表','発表',[r('はっぴょう','happyō','pengumuman / presentasi','announcement, presentation')],[e('研究の結果を発表します。','Kenkyū no kekka o happyō shimasu.','Saya mempresentasikan hasil penelitian.')]),
+c('146 表','代表',[r('だいひょう','daihyō','perwakilan','representative')],[e('クラスの代表に選ばれました。','Kurasu no daihyō ni erabaremashita.','Saya terpilih menjadi wakil kelas.')]),
+c('147 裏','裏',[r('うら','ura','belakang / sisi sebaliknya','back, reverse')],[e('紙の裏に名前を書きます。','Kami no ura ni namae o kakimasu.','Saya menulis nama di belakang kertas.')]),
+c('147 裏','裏返す',[r('うらがえす','uragaesu','membalik','to turn over')],[e('パンケーキを裏返します。','Pankēki o uragaeshimasu.','Saya membalik pancake.')]),
+];
+/* 5日目 コピー機・留守番電話（漢字148〜155） */
+const L17=[
+c('148 留','留学',[r('りゅうがく','ryūgaku','studi ke luar negeri','study abroad')],[e('来年、日本に留学します。','Rainen, Nihon ni ryūgaku shimasu.','Tahun depan saya belajar ke Jepang.')]),
+c('148 留','留守番',[r('るすばん','rusuban','menjaga rumah','house-sitting')],[e('子どもが一人で留守番します。','Kodomo ga hitori de rusuban shimasu.','Anak menjaga rumah sendirian.')]),
+c('148 留','書留',[r('かきとめ','kakitome','surat tercatat','registered mail')],[e('大事な書類は書留で送ります。','Daiji na shorui wa kakitome de okurimasu.','Dokumen penting dikirim lewat pos tercatat.')]),
+c('149 守','守る',[r('まもる','mamoru','melindungi / menaati','to protect, to obey')],[e('約束は必ず守ります。','Yakusoku wa kanarazu mamorimasu.','Saya pasti menepati janji.')]),
+c('149 守','留守',[r('るす','rusu','tidak ada di rumah','absence (not home)')],[e('電話しましたが留守でした。','Denwa shimashita ga rusu deshita.','Saya menelepon tetapi tidak ada di rumah.')]),
+c('150 濃','濃い',[r('こい','koi','pekat / kental / tua (warna)','dark, strong')],[e('このコーヒーは濃いです。','Kono kōhī wa koi desu.','Kopi ini kental.')]),
+c('151 薄','薄い',[r('うすい','usui','tipis / encer / muda (warna)','thin, light, weak')],[e('この本は薄いです。','Kono hon wa usui desu.','Buku ini tipis.')]),
+c('152 部','部分',[r('ぶぶん','bubun','bagian','part')],[e('この部分がわかりません。','Kono bubun ga wakarimasen.','Bagian ini saya tidak mengerti.')]),
+c('152 部','部長',[r('ぶちょう','buchō','kepala bagian','department manager')],[e('部長に報告します。','Buchō ni hōkoku shimasu.','Saya melapor ke kepala bagian.')]),
+c('152 部','部屋',[r('へや','heya','kamar','room')],[e('私の部屋は二階です。','Watashi no heya wa ni-kai desu.','Kamar saya di lantai dua.')]),
+c('153 数','数字',[r('すうじ','sūji','angka','number, digit')],[e('数字を大きく書いてください。','Sūji o ōkiku kaite kudasai.','Tolong tulis angkanya besar-besar.')]),
+c('153 数','数える',[r('かぞえる','kazoeru','menghitung','to count')],[e('お金を数えます。','Okane o kazoemasu.','Saya menghitung uang.')]),
+c('153 数','数学',[r('すうがく','sūgaku','matematika','mathematics')],[e('私は数学が得意です。','Watashi wa sūgaku ga tokui desu.','Saya pandai matematika.')]),
+c('154 件','用件',[r('ようけん','yōken','urusan / keperluan','business matter')],[e('用件を先に話します。','Yōken o saki ni hanashimasu.','Saya bicarakan keperluannya lebih dulu.')]),
+c('154 件','事件',[r('じけん','jiken','peristiwa / kejadian','incident')],[e('町で事件がありました。','Machi de jiken ga arimashita.','Ada kejadian di kota.')]),
+c('155 再','再生',[r('さいせい','saisei','memutar / mendaur ulang','to play, to recycle')],[e('録音した声を再生します。','Rokuon shita koe o saisei shimasu.','Saya memutar suara yang direkam.')]),
+c('155 再','再来週',[r('さらいしゅう','saraishū','dua minggu lagi','week after next')],[e('再来週、試験があります。','Saraishū, shiken ga arimasu.','Dua minggu lagi ada ujian.')]),
+];
+/* 6日目 携帯電話（漢字156〜163） */
+const L18=[
+c('156 接','接続',[r('せつぞく','setsuzoku','koneksi / menyambung','connection')],[e('インターネットに接続します。','Intānetto ni setsuzoku shimasu.','Saya menyambung ke internet.')]),
+c('156 接','面接',[r('めんせつ','mensetsu','wawancara','interview')],[e('明日、会社の面接があります。','Ashita, kaisha no mensetsu ga arimasu.','Besok ada wawancara kerja.')]),
+c('157 続','続く',[r('つづく','tsuzuku','berlanjut','to continue (intr.)')],[e('いい天気が続いています。','Ii tenki ga tsuzuite imasu.','Cuaca bagus terus berlanjut.')]),
+c('157 続','続ける',[r('つづける','tsuzukeru','melanjutkan','to continue (tr.)')],[e('日本語の勉強を続けます。','Nihongo no benkyō o tsuzukemasu.','Saya melanjutkan belajar bahasa Jepang.')]),
+c('158 示','表示',[r('ひょうじ','hyōji','tampilan / indikasi','indication, display')],[e('画面に地図が表示されます。','Gamen ni chizu ga hyōji saremasu.','Peta ditampilkan di layar.')]),
+c('158 示','指示',[r('しじ','shiji','instruksi','instruction')],[e('先生の指示に従います。','Sensei no shiji ni shitagaimasu.','Saya mengikuti instruksi guru.')]),
+c('158 示','示す',[r('しめす','shimesu','menunjukkan','to show, to indicate')],[e('地図で場所を示します。','Chizu de basho o shimeshimasu.','Saya menunjukkan tempat dengan peta.')]),
+c('159 戻','戻る',[r('もどる','modoru','kembali','to return (intr.)')],[e('五時までに家に戻ります。','Go-ji made ni ie ni modorimasu.','Saya kembali ke rumah sebelum jam lima.')]),
+c('159 戻','戻す',[r('もどす','modosu','mengembalikan','to put back (tr.)')],[e('本を棚に戻します。','Hon o tana ni modoshimasu.','Saya mengembalikan buku ke rak.')]),
+c('160 完','完了',[r('かんりょう','kanryō','selesai / lengkap','completion')],[e('手続きが完了しました。','Tetsuzuki ga kanryō shimashita.','Prosedurnya telah selesai.')]),
+c('160 完','完全な',[r('かんぜんな','kanzen na','sempurna / lengkap','perfect, complete')],[e('完全な準備ができました。','Kanzen na junbi ga dekimashita.','Persiapan yang lengkap sudah selesai.')]),
+c('161 了','了解',[r('りょうかい','ryōkai','mengerti / setuju','understood, roger')],[e('了解しました、すぐ行きます。','Ryōkai shimashita, sugu ikimasu.','Mengerti, saya segera datang.')]),
+c('161 了','終了',[r('しゅうりょう','shūryō','berakhir / selesai','end')],[e('試験が終了しました。','Shiken ga shūryō shimashita.','Ujian telah selesai.')]),
+c('162 登','登録',[r('とうろく','tōroku','registrasi / pendaftaran','registration')],[e('会員に登録します。','Kaiin ni tōroku shimasu.','Saya mendaftar menjadi anggota.')]),
+c('162 登','登る',[r('のぼる','noboru','mendaki / naik','to climb')],[e('友だちと山に登ります。','Tomodachi to yama ni noborimasu.','Saya mendaki gunung bersama teman.')]),
+c('162 登','登山',[r('とざん','tozan','mendaki gunung','mountain climbing')],[e('週末に登山をします。','Shūmatsu ni tozan o shimasu.','Akhir pekan saya mendaki gunung.')]),
+c('163 録','記録',[r('きろく','kiroku','catatan / rekor','record')],[e('会議の記録を取ります。','Kaigi no kiroku o torimasu.','Saya mencatat notulen rapat.')]),
+c('163 録','録音',[r('ろくおん','rokuon','rekaman suara','sound recording')],[e('会議を録音します。','Kaigi o rokuon shimasu.','Saya merekam rapat.')]),
+c('163 録','録画',[r('ろくが','rokuga','rekaman video','video recording')],[e('見たいドラマを録画しました。','Mitai dorama o rokuga shimashita.','Saya merekam drama yang ingin saya tonton.')]),
+];
+
+/* --- 第4週 かう --- */
+/* 1日目 日用品（漢字171〜178） */
+const L19=[
+c('171 砂','砂糖',[r('さとう','satō','gula','sugar')],[e('コーヒーに砂糖を入れます。','Kōhī ni satō o iremasu.','Saya memasukkan gula ke kopi.')]),
+c('171 砂','砂',[r('すな','suna','pasir','sand')],[e('子どもが砂で遊んでいます。','Kodomo ga suna de asonde imasu.','Anak-anak bermain pasir.')]),
+c('172 塩','塩',[r('しお','shio','garam','salt')],[e('スープに塩を少し入れます。','Sūpu ni shio o sukoshi iremasu.','Saya menambahkan sedikit garam ke sup.')]),
+c('172 塩','食塩',[r('しょくえん','shokuen','garam meja','table salt')],[e('食塩の取りすぎに注意します。','Shokuen no torisugi ni chūi shimasu.','Saya berhati-hati agar tidak terlalu banyak garam.')]),
+c('173 油','油',[r('あぶら','abura','minyak','oil')],[e('フライパンに油をひきます。','Furaipan ni abura o hikimasu.','Saya mengolesi wajan dengan minyak.')]),
+c('173 油','しょう油',[r('しょうゆ','shōyu','kecap asin','soy sauce')],[e('刺身にしょう油をつけます。','Sashimi ni shōyu o tsukemasu.','Saya mencelupkan sashimi ke kecap asin.')]),
+c('173 油','石油',[r('せきゆ','sekiyu','minyak bumi','petroleum')],[e('石油の値段が上がりました。','Sekiyu no nedan ga agarimashita.','Harga minyak bumi naik.')]),
+c('174 緑','緑茶',[r('りょくちゃ','ryokucha','teh hijau','green tea')],[e('食事の後に緑茶を飲みます。','Shokuji no ato ni ryokucha o nomimasu.','Saya minum teh hijau setelah makan.')]),
+c('174 緑','緑',[r('みどり','midori','hijau','green')],[e('春は山の緑がきれいです。','Haru wa yama no midori ga kirei desu.','Di musim semi hijaunya gunung indah.')]),
+c('175 紅','紅茶',[r('こうちゃ','kōcha','teh hitam','black tea')],[e('紅茶にミルクを入れます。','Kōcha ni miruku o iremasu.','Saya menambahkan susu ke teh.')]),
+c('175 紅','口紅',[r('くちべに','kuchibeni','lipstik','lipstick')],[e('赤い口紅をつけます。','Akai kuchibeni o tsukemasu.','Saya memakai lipstik merah.')]),
+c('176 冊','〜冊',[r('さつ','satsu','(penghitung buku)','counter for books')],[e('図書館で本を三冊借りました。','Toshokan de hon o san-satsu karimashita.','Saya meminjam tiga buku di perpustakaan.')]),
+c('177 個','〜個',[r('こ','ko','(penghitung benda)','counter for objects')],[e('りんごを五個買いました。','Ringo o go-ko kaimashita.','Saya membeli lima apel.')]),
+c('177 個','個人',[r('こじん','kojin','individu','individual')],[e('これは個人の意見です。','Kore wa kojin no iken desu.','Ini pendapat pribadi.')]),
+c('177 個','団体',[r('だんたい','dantai','kelompok / rombongan','a group')],[e('団体で旅行します。','Dantai de ryokō shimasu.','Kami bepergian secara rombongan.')]),
+c('178 枚','〜枚',[r('まい','mai','(penghitung benda tipis)','counter for flat objects')],[e('紙を二枚ください。','Kami o ni-mai kudasai.','Tolong beri saya dua lembar kertas.')]),
+c('178 枚','枚数',[r('まいすう','maisū','jumlah lembar','number of sheets')],[e('写真の枚数を確認します。','Shashin no maisū o kakunin shimasu.','Saya memeriksa jumlah foto.')]),
+];
+/* 2日目 広告メール（漢字179〜186） */
+const L20=[
+c('179 告','広告',[r('こうこく','kōkoku','iklan','advertisement')],[e('新聞に広告を出します。','Shinbun ni kōkoku o dashimasu.','Saya memasang iklan di koran.')]),
+c('180 利','便利な',[r('べんりな','benri na','praktis / nyaman','convenient')],[e('この駅は便利です。','Kono eki wa benri desu.','Stasiun ini praktis.')]),
+c('180 利','利用する',[r('りようする','riyō suru','memakai / memanfaatkan','to use')],[e('図書館をよく利用します。','Toshokan o yoku riyō shimasu.','Saya sering memanfaatkan perpustakaan.')]),
+c('181 割','割引',[r('わりびき','waribiki','diskon','discount')],[e('学生は割引があります。','Gakusei wa waribiki ga arimasu.','Pelajar mendapat diskon.')]),
+c('181 割','割合',[r('わりあい','wariai','rasio / perbandingan','ratio')],[e('賛成の人の割合が高いです。','Sansei no hito no wariai ga takai desu.','Rasio orang yang setuju tinggi.')]),
+c('181 割','割る',[r('わる','waru','membagi / memecahkan','to break, to divide')],[e('十を二で割ります。','Jū o ni de warimasu.','Saya membagi sepuluh dengan dua.')]),
+c('182 倍','〜倍',[r('ばい','bai','...kali lipat','... times')],[e('今年は去年の二倍売れました。','Kotoshi wa kyonen no ni-bai uremashita.','Tahun ini terjual dua kali lipat dari tahun lalu.')]),
+c('183 値','値段',[r('ねだん','nedan','harga','price')],[e('この服の値段は高いです。','Kono fuku no nedan wa takai desu.','Harga baju ini mahal.')]),
+c('183 値','値上げ',[r('ねあげ','neage','kenaikan harga','price increase')],[e('来月から値上げします。','Raigetsu kara neage shimasu.','Mulai bulan depan harga naik.')]),
+c('183 値','値下げ',[r('ねさげ','nesage','penurunan harga','price reduction')],[e('古い商品を値下げします。','Furui shōhin o nesage shimasu.','Barang lama diturunkan harganya.')]),
+c('184 商','商品',[r('しょうひん','shōhin','barang dagangan','goods')],[e('新しい商品が入りました。','Atarashii shōhin ga hairimashita.','Barang baru sudah masuk.')]),
+c('184 商','商店',[r('しょうてん','shōten','toko','shop')],[e('駅前に商店が並んでいます。','Ekimae ni shōten ga narande imasu.','Toko-toko berjajar di depan stasiun.')]),
+c('185 支','支店',[r('してん','shiten','cabang','branch')],[e('大阪に支店があります。','Ōsaka ni shiten ga arimasu.','Ada cabang di Osaka.')]),
+c('185 支','本社',[r('ほんしゃ','honsha','kantor pusat','head office')],[e('本社は東京にあります。','Honsha wa Tōkyō ni arimasu.','Kantor pusat ada di Tokyo.')]),
+c('186 払','払う',[r('はらう','harau','membayar','to pay')],[e('電気代を払います。','Denkidai o haraimasu.','Saya membayar tagihan listrik.')]),
+c('186 払','支払い',[r('しはらい','shiharai','pembayaran','payment')],[e('支払いはカードでできます。','Shiharai wa kādo de dekimasu.','Pembayaran bisa dengan kartu.')]),
+];
+/* 3日目 通信販売（漢字187〜194） */
+const L21=[
+c('187 米','米',[r('こめ','kome','beras','rice')],[e('日本人は米をよく食べます。','Nihonjin wa kome o yoku tabemasu.','Orang Jepang sering makan nasi (beras).')]),
+c('187 米','米国',[r('べいこく','beikoku','Amerika Serikat','the USA')],[e('兄は米国に住んでいます。','Ani wa beikoku ni sunde imasu.','Kakak saya tinggal di Amerika.')]),
+c('188 級','高級な',[r('こうきゅうな','kōkyū na','mewah / kelas atas','high-class')],[e('高級なレストランで食事します。','Kōkyū na resutoran de shokuji shimasu.','Saya makan di restoran mewah.')]),
+c('188 級','上級',[r('じょうきゅう','jōkyū','tingkat lanjut','advanced level')],[e('上級のクラスに進みます。','Jōkyū no kurasu ni susumimasu.','Saya naik ke kelas tingkat lanjut.')]),
+c('188 級','中級',[r('ちゅうきゅう','chūkyū','tingkat menengah','intermediate')],[e('私は今、中級のレベルです。','Watashi wa ima, chūkyū no reberu desu.','Saya sekarang di level menengah.')]),
+c('189 残','残る',[r('のこる','nokoru','tersisa','to remain')],[e('ご飯が少し残りました。','Gohan ga sukoshi nokorimashita.','Nasinya tersisa sedikit.')]),
+c('189 残','残業',[r('ざんぎょう','zangyō','lembur','overtime work')],[e('今日は残業があります。','Kyō wa zangyō ga arimasu.','Hari ini ada lembur.')]),
+c('189 残','残す',[r('のこす','nokosu','menyisakan','to leave behind')],[e('料理を残さないでください。','Ryōri o nokosanaide kudasai.','Tolong jangan menyisakan makanan.')]),
+c('190 型','大型',[r('おおがた','ōgata','berukuran besar','large')],[e('大型のトラックが通ります。','Ōgata no torakku ga tōrimasu.','Truk besar lewat.')]),
+c('190 型','新型',[r('しんがた','shingata','model baru','new model')],[e('新型のスマホを買いました。','Shingata no sumaho o kaimashita.','Saya membeli ponsel model baru.')]),
+c('190 型','小型',[r('こがた','kogata','berukuran kecil','small-sized')],[e('小型の車は運転しやすいです。','Kogata no kuruma wa unten shiyasui desu.','Mobil kecil mudah dikendarai.')]),
+c('191 税','税金',[r('ぜいきん','zeikin','pajak','tax')],[e('毎年、税金を払います。','Maitoshi, zeikin o haraimasu.','Setiap tahun saya membayar pajak.')]),
+c('191 税','消費税',[r('しょうひぜい','shōhizei','pajak konsumsi','consumption tax')],[e('消費税は十パーセントです。','Shōhizei wa juppāsento desu.','Pajak konsumsi sepuluh persen.')]),
+c('192 込','込む',[r('こむ','komu','penuh / ramai','to be crowded')],[e('電車がとても込んでいます。','Densha ga totemo konde imasu.','Keretanya sangat penuh.')]),
+c('192 込','振り込む',[r('ふりこむ','furikomu','transfer (uang)','to transfer money')],[e('家賃を銀行に振り込みます。','Yachin o ginkō ni furikomimasu.','Saya mentransfer uang sewa ke bank.')]),
+c('192 込','税込',[r('ぜいこみ','zeikomi','termasuk pajak','tax included')],[e('この値段は税込です。','Kono nedan wa zeikomi desu.','Harga ini sudah termasuk pajak.')]),
+c('193 価','価格',[r('かかく','kakaku','harga','price')],[e('商品の価格を比べます。','Shōhin no kakaku o kurabemasu.','Saya membandingkan harga produk.')]),
+c('193 価','定価',[r('ていか','teika','harga tetap','fixed price')],[e('定価より安く買いました。','Teika yori yasuku kaimashita.','Saya membeli lebih murah dari harga tetap.')]),
+c('194 格','合格',[r('ごうかく','gōkaku','lulus (ujian)','pass an exam')],[e('試験に合格しました。','Shiken ni gōkaku shimashita.','Saya lulus ujian.')]),
+c('194 格','格安',[r('かくやす','kakuyasu','murah meriah','bargain')],[e('格安のチケットを見つけました。','Kakuyasu no chiketto o mitsukemashita.','Saya menemukan tiket murah.')]),
+];
+/* 4日目 申込書（漢字195〜202） */
+const L22=[
+c('195 申','申し込む',[r('もうしこむ','mōshikomu','mendaftar / mengajukan','to apply')],[e('セミナーに申し込みます。','Seminā ni mōshikomimasu.','Saya mendaftar seminar.')]),
+c('195 申','申込書',[r('もうしこみしょ','mōshikomisho','formulir pendaftaran','application form')],[e('申込書に名前を書きます。','Mōshikomisho ni namae o kakimasu.','Saya menulis nama di formulir pendaftaran.')]),
+c('195 申','申す',[r('もうす','mōsu','berkata (rendah hati)','to say (humble)')],[e('田中と申します。','Tanaka to mōshimasu.','Nama saya Tanaka.')]),
+c('196 記','記入する',[r('きにゅうする','kinyū suru','mengisi (formulir)','to fill in')],[e('ここに住所を記入してください。','Koko ni jūsho o kinyū shite kudasai.','Tolong isi alamat di sini.')]),
+c('196 記','日記',[r('にっき','nikki','buku harian','diary')],[e('毎日、日記を書きます。','Mainichi, nikki o kakimasu.','Setiap hari saya menulis buku harian.')]),
+c('196 記','記事',[r('きじ','kiji','artikel','article')],[e('新聞の記事を読みます。','Shinbun no kiji o yomimasu.','Saya membaca artikel koran.')]),
+c('197 例','例',[r('れい','rei','contoh','example')],[e('例を挙げて説明します。','Rei o agete setsumei shimasu.','Saya menjelaskan dengan memberi contoh.')]),
+c('197 例','例えば',[r('たとえば','tatoeba','misalnya','for example')],[e('例えば、これはどうですか。','Tatoeba, kore wa dō desu ka.','Misalnya, bagaimana yang ini?')]),
+c('198 齢','年齢',[r('ねんれい','nenrei','usia','age')],[e('ここに年齢を書いてください。','Koko ni nenrei o kaite kudasai.','Tolong tulis usia di sini.')]),
+c('198 齢','高齢',[r('こうれい','kōrei','lanjut usia','old age')],[e('高齢の人が増えています。','Kōrei no hito ga fuete imasu.','Jumlah lansia bertambah.')]),
+c('199 歳','〜歳',[r('さい','sai','...tahun (umur)','... years old')],[e('私は二十五歳です。','Watashi wa nijūgo-sai desu.','Saya berumur dua puluh lima tahun.')]),
+c('199 歳','二十歳',[r('はたち','hatachi','20 tahun','20 years old')],[e('弟は今年二十歳になります。','Otōto wa kotoshi hatachi ni narimasu.','Adik saya tahun ini berumur 20.')]),
+c('200 性','性別',[r('せいべつ','seibetsu','jenis kelamin','gender')],[e('ここに性別を書いてください。','Koko ni seibetsu o kaite kudasai.','Tolong tulis jenis kelamin di sini.')]),
+c('200 性','女性',[r('じょせい','josei','perempuan','woman')],[e('この会社は女性が多いです。','Kono kaisha wa josei ga ōi desu.','Perusahaan ini banyak perempuannya.')]),
+c('200 性','性格',[r('せいかく','seikaku','kepribadian','personality')],[e('彼は明るい性格です。','Kare wa akarui seikaku desu.','Dia berkepribadian ceria.')]),
+c('201 連','連休',[r('れんきゅう','renkyū','libur beruntun','consecutive holidays')],[e('連休に旅行します。','Renkyū ni ryokō shimasu.','Saya bepergian saat libur panjang.')]),
+c('201 連','連れて行く',[r('つれていく','tsurete iku','mengajak pergi','to take someone')],[e('子どもを公園に連れて行きます。','Kodomo o kōen ni tsurete ikimasu.','Saya mengajak anak ke taman.')]),
+c('202 絡','連絡',[r('れんらく','renraku','kontak / menghubungi','contact')],[e('あとで連絡します。','Ato de renraku shimasu.','Nanti saya hubungi.')]),
+];
+/* 5日目 注文（漢字203〜210） */
+const L23=[
+c('203 届','届く',[r('とどく','todoku','sampai / tiba','to arrive')],[e('荷物が今日届きました。','Nimotsu ga kyō todokimashita.','Paketnya tiba hari ini.')]),
+c('203 届','届ける',[r('とどける','todokeru','mengantar','to deliver')],[e('忘れ物を届けます。','Wasuremono o todokemasu.','Saya mengantarkan barang yang tertinggal.')]),
+c('204 宅','自宅',[r('じたく','jitaku','rumah sendiri','one home')],[e('自宅で仕事をします。','Jitaku de shigoto o shimasu.','Saya bekerja di rumah.')]),
+c('204 宅','宅配',[r('たくはい','takuhai','pengantaran ke rumah','home delivery')],[e('荷物を宅配で送ります。','Nimotsu o takuhai de okurimasu.','Saya mengirim barang lewat jasa antar.')]),
+c('205 配','配達',[r('はいたつ','haitatsu','pengantaran','delivery')],[e('毎朝、新聞を配達します。','Maiasa, shinbun o haitatsu shimasu.','Setiap pagi koran diantar.')]),
+c('205 配','心配',[r('しんぱい','shinpai','khawatir','worry')],[e('試験の結果が心配です。','Shiken no kekka ga shinpai desu.','Saya khawatir dengan hasil ujian.')]),
+c('205 配','配る',[r('くばる','kubaru','membagikan','to distribute')],[e('クラスでプリントを配ります。','Kurasu de purinto o kubarimasu.','Saya membagikan lembaran di kelas.')]),
+c('206 希','希望',[r('きぼう','kibō','harapan','hope')],[e('配達の希望の日を選んでください。','Haitatsu no kibō no hi o erande kudasai.','Pilih tanggal pengantaran yang diinginkan.')]),
+c('207 望','望む',[r('のぞむ','nozomu','mengharapkan','to hope for')],[e('世界の平和を望みます。','Sekai no heiwa o nozomimasu.','Saya mendambakan perdamaian dunia.')]),
+c('207 望','失望',[r('しつぼう','shitsubō','kecewa','despair')],[e('結果に失望しました。','Kekka ni shitsubō shimashita.','Saya kecewa dengan hasilnya.')]),
+c('208 荷','荷物',[r('にもつ','nimotsu','barang bawaan','luggage')],[e('この荷物は重いです。','Kono nimotsu wa omoi desu.','Barang ini berat.')]),
+c('208 荷','入荷',[r('にゅうか','nyūka','barang masuk (stok)','receipt of goods')],[e('新商品が入荷しました。','Shinshōhin ga nyūka shimashita.','Produk baru sudah masuk stok.')]),
+c('208 荷','出荷',[r('しゅっか','shukka','pengiriman barang','shipment')],[e('商品を工場から出荷します。','Shōhin o kōjō kara shukka shimasu.','Produk dikirim dari pabrik.')]),
+c('209 換','交換',[r('こうかん','kōkan','tukar-menukar','exchange')],[e('壊れた品物を交換します。','Kowareta shinamono o kōkan shimasu.','Saya menukar barang yang rusak.')]),
+c('209 換','乗り換え',[r('のりかえ','norikae','ganti kereta','transfer (trains)')],[e('次の駅で乗り換えます。','Tsugi no eki de norikaemasu.','Saya ganti kereta di stasiun berikutnya.')]),
+c('210 額','金額',[r('きんがく','kingaku','jumlah uang','amount of money')],[e('金額を確認してください。','Kingaku o kakunin shite kudasai.','Tolong periksa jumlah uangnya.')]),
+c('210 額','半額',[r('はんがく','hangaku','setengah harga','half price')],[e('セールで半額になりました。','Sēru de hangaku ni narimashita.','Karena obral menjadi setengah harga.')]),
+];
+/* 6日目 不在通知（漢字211〜218） */
+const L24=[
+c('211 在','不在',[r('ふざい','fuzai','tidak ada di tempat','absence')],[e('父は今、不在です。','Chichi wa ima, fuzai desu.','Ayah sedang tidak ada di tempat.')]),
+c('211 在','現在',[r('げんざい','genzai','saat ini','present time')],[e('現在の住所を書きます。','Genzai no jūsho o kakimasu.','Saya menulis alamat saat ini.')]),
+c('212 取','取る',[r('とる','toru','mengambil','to take')],[e('その塩を取ってください。','Sono shio o totte kudasai.','Tolong ambilkan garam itu.')]),
+c('212 取','受け取る',[r('うけとる','uketoru','menerima','to receive')],[e('荷物を受け取りました。','Nimotsu o uketorimashita.','Saya sudah menerima paketnya.')]),
+c('212 取','受取人',[r('うけとりにん','uketorinin','penerima','recipient')],[e('受取人の名前を書きます。','Uketorinin no namae o kakimasu.','Saya menulis nama penerima.')]),
+c('213 預','預ける',[r('あずける','azukeru','menitipkan','to entrust')],[e('荷物をロッカーに預けます。','Nimotsu o rokkā ni azukemasu.','Saya menitipkan barang di loker.')]),
+c('213 預','預金',[r('よきん','yokin','tabungan / simpanan','deposit')],[e('毎月、銀行に預金します。','Maitsuki, ginkō ni yokin shimasu.','Setiap bulan saya menabung di bank.')]),
+c('214 衣','衣類',[r('いるい','irui','pakaian','clothing')],[e('衣類を洗濯します。','Irui o sentaku shimasu.','Saya mencuci pakaian.')]),
+c('214 衣','衣服',[r('いふく','ifuku','pakaian','clothes')],[e('季節に合った衣服を選びます。','Kisetsu ni atta ifuku o erabimasu.','Saya memilih pakaian sesuai musim.')]),
+c('215 参','参加する',[r('さんかする','sanka suru','ikut serta','to participate')],[e('会議に参加します。','Kaigi ni sanka shimasu.','Saya ikut serta dalam rapat.')]),
+c('215 参','参考書',[r('さんこうしょ','sankōsho','buku referensi','reference book')],[e('参考書を見て勉強します。','Sankōsho o mite benkyō shimasu.','Saya belajar sambil melihat buku referensi.')]),
+c('216 達','友達',[r('ともだち','tomodachi','teman','friend')],[e('友達と映画を見ます。','Tomodachi to eiga o mimasu.','Saya menonton film bersama teman.')]),
+c('216 達','上達する',[r('じょうたつする','jōtatsu suru','berkembang / mahir','to make progress')],[e('日本語が上達しました。','Nihongo ga jōtatsu shimashita.','Bahasa Jepang saya berkembang.')]),
+c('216 達','速達',[r('そくたつ','sokutatsu','kilat (pos)','special delivery')],[e('速達で手紙を送ります。','Sokutatsu de tegami o okurimasu.','Saya mengirim surat kilat.')]),
+c('217 勤','通勤',[r('つうきん','tsūkin','pergi kerja','commuting')],[e('電車で通勤します。','Densha de tsūkin shimasu.','Saya pergi kerja naik kereta.')]),
+c('217 勤','勤める',[r('つとめる','tsutomeru','bekerja (dipekerjakan)','to work, be employed')],[e('銀行に勤めています。','Ginkō ni tsutomete imasu.','Saya bekerja di bank.')]),
+c('218 帯','携帯',[r('けいたい','keitai','ponsel','cell phone')],[e('携帯で写真を撮ります。','Keitai de shashin o torimasu.','Saya memotret dengan ponsel.')]),
+c('218 帯','時間帯',[r('じかんたい','jikantai','rentang waktu','time slot')],[e('混む時間帯を避けます。','Komu jikantai o sakemasu.','Saya menghindari jam-jam ramai.')]),
+];
+
+/* --- 第5週 かく --- */
+/* 1日目 メールを送る（漢字226〜233） */
+const L25=[
+c('226 礼','お礼',[r('おれい','orei','terima kasih / balas budi','thanks')],[e('お世話になった先生にお礼を言います。','Osewa ni natta sensei ni orei o iimasu.','Saya berterima kasih kepada guru yang telah membantu.')]),
+c('227 伺','伺う',[r('うかがう','ukagau','berkunjung / bertanya (rendah hati)','to visit, to ask (humble)')],[e('明日、三時にお伺いします。','Ashita, san-ji ni oukagai shimasu.','Besok pukul tiga saya akan berkunjung.')]),
+c('228 遅','遅刻',[r('ちこく','chikoku','terlambat','tardiness')],[e('電車が止まって遅刻しました。','Densha ga tomatte chikoku shimashita.','Saya terlambat karena kereta berhenti.')]),
+c('228 遅','遅れる',[r('おくれる','okureru','terlambat / tertunda','to be late')],[e('バスが遅れています。','Basu ga okurete imasu.','Busnya terlambat.')]),
+c('229 失','失敗',[r('しっぱい','shippai','kegagalan','failure, mistake')],[e('失敗を次に生かします。','Shippai o tsugi ni ikashimasu.','Saya jadikan kegagalan sebagai pelajaran.')]),
+c('229 失','失礼な',[r('しつれいな','shitsurei na','tidak sopan','rude')],[e('失礼なことを言ってすみません。','Shitsurei na koto o itte sumimasen.','Maaf saya berkata tidak sopan.')]),
+c('230 汗','汗',[r('あせ','ase','keringat','sweat')],[e('暑くて汗をかきました。','Atsukute ase o kakimashita.','Saya berkeringat karena panas.')]),
+c('231 念','残念な',[r('ざんねんな','zannen na','disayangkan / kecewa','regrettable')],[e('会えなくて残念です。','Aenakute zannen desu.','Sayang sekali tidak bisa bertemu.')]),
+c('231 念','記念',[r('きねん','kinen','peringatan / kenang-kenangan','commemoration')],[e('記念に写真を撮ります。','Kinen ni shashin o torimasu.','Saya memotret untuk kenang-kenangan.')]),
+c('232 涙','涙',[r('なみだ','namida','air mata','tears')],[e('映画を見て涙が出ました。','Eiga o mite namida ga demashita.','Air mata saya keluar saat menonton film.')]),
+c('233 笑','笑う',[r('わらう','warau','tertawa / tersenyum','to laugh, to smile')],[e('冗談を言って皆で笑いました。','Jōdan o itte minna de waraimashita.','Kami semua tertawa karena leluconnya.')]),
+c('233 笑','笑顔',[r('えがお','egao','senyum / wajah tersenyum','smiling face')],[e('彼女はいつも笑顔です。','Kanojo wa itsumo egao desu.','Dia selalu tersenyum.')]),
+];
+/* 2日目 アンケート（漢字234〜241） */
+const L26=[
+c('234 調','調べる',[r('しらべる','shiraberu','memeriksa / menyelidiki','to look up, to investigate')],[e('分からない言葉を辞書で調べます。','Wakaranai kotoba o jisho de shirabemasu.','Saya mencari kata yang tidak tahu di kamus.')]),
+c('234 調','調子',[r('ちょうし','chōshi','kondisi / keadaan','condition')],[e('今日は体の調子がいいです。','Kyō wa karada no chōshi ga ii desu.','Hari ini kondisi tubuh saya baik.')]),
+c('235 査','調査',[r('ちょうさ','chōsa','survei / penyelidikan','investigation, survey')],[e('アンケート調査を行います。','Ankēto chōsa o okonaimasu.','Kami melakukan survei angket.')]),
+c('236 移','移動する',[r('いどうする','idō suru','berpindah','to move')],[e('次の教室に移動します。','Tsugi no kyōshitsu ni idō shimasu.','Saya pindah ke kelas berikutnya.')]),
+c('236 移','移る',[r('うつる','utsuru','berpindah','to move, to shift')],[e('来月、新しい家に移ります。','Raigetsu, atarashii ie ni utsurimasu.','Bulan depan saya pindah ke rumah baru.')]),
+c('237 難','難しい',[r('むずかしい','muzukashii','sulit','difficult')],[e('この問題は難しいです。','Kono mondai wa muzukashii desu.','Soal ini sulit.')]),
+c('237 難','困難な',[r('こんなんな','konnan na','sulit / kesulitan','hardship, difficult')],[e('困難な状況を乗り越えます。','Konnan na jōkyō o norikoemasu.','Saya melewati situasi yang sulit.')]),
+c('238 簡','簡単な',[r('かんたんな','kantan na','mudah / sederhana','easy, simple')],[e('この料理は簡単に作れます。','Kono ryōri wa kantan ni tsukuremasu.','Masakan ini mudah dibuat.')]),
+c('239 単','単語',[r('たんご','tango','kosakata','vocabulary')],[e('毎日、単語を覚えます。','Mainichi, tango o oboemasu.','Setiap hari saya menghafal kosakata.')]),
+c('239 単','単位',[r('たんい','tan-i','satuan / SKS','unit, credit')],[e('授業の単位を取りました。','Jugyō no tan-i o torimashita.','Saya mendapatkan SKS mata kuliah.')]),
+c('240 感','感じる',[r('かんじる','kanjiru','merasa','to feel')],[e('秋の気配を感じます。','Aki no kehai o kanjimasu.','Saya merasakan tanda-tanda musim gugur.')]),
+c('240 感','感動する',[r('かんどうする','kandō suru','terharu','to be moved')],[e('その話に感動しました。','Sono hanashi ni kandō shimashita.','Saya terharu dengan cerita itu.')]),
+c('241 想','感想',[r('かんそう','kansō','kesan / pendapat','impressions')],[e('読んだ本の感想を書きます。','Yonda hon no kansō o kakimasu.','Saya menulis kesan tentang buku yang dibaca.')]),
+c('241 想','予想',[r('よそう','yosō','prediksi / perkiraan','forecast')],[e('試合の結果を予想します。','Shiai no kekka o yosō shimasu.','Saya memperkirakan hasil pertandingan.')]),
+];
+/* 3日目 日本語クラス（漢字242〜250） */
+const L27=[
+c('242 練','練習',[r('れんしゅう','renshū','latihan','practice')],[e('毎日、漢字を練習します。','Mainichi, kanji o renshū shimasu.','Setiap hari saya berlatih kanji.')]),
+c('243 最','最近',[r('さいきん','saikin','akhir-akhir ini','recently')],[e('最近、とても忙しいです。','Saikin, totemo isogashii desu.','Belakangan ini saya sangat sibuk.')]),
+c('243 最','最初',[r('さいしょ','saisho','awal / pertama','first, beginning')],[e('最初に自己紹介をします。','Saisho ni jiko shōkai o shimasu.','Pertama saya memperkenalkan diri.')]),
+c('243 最','最後',[r('さいご','saigo','terakhir','last, end')],[e('最後まで諦めません。','Saigo made akiramemasen.','Saya tidak menyerah sampai akhir.')]),
+c('244 適','適当な',[r('てきとうな','tekitō na','sesuai / pantas','appropriate')],[e('適当な言葉を選びます。','Tekitō na kotoba o erabimasu.','Saya memilih kata yang tepat.')]),
+c('244 適','快適な',[r('かいてきな','kaiteki na','nyaman','comfortable')],[e('この部屋はとても快適です。','Kono heya wa totemo kaiteki desu.','Kamar ini sangat nyaman.')]),
+c('245 選','選ぶ',[r('えらぶ','erabu','memilih','to choose')],[e('好きな色を選んでください。','Suki na iro o erande kudasai.','Pilihlah warna yang Anda suka.')]),
+c('245 選','選手',[r('せんしゅ','senshu','atlet / pemain','athlete, player')],[e('彼は有名なサッカー選手です。','Kare wa yūmei na sakkā senshu desu.','Dia pemain sepak bola terkenal.')]),
+c('246 違','違う',[r('ちがう','chigau','berbeda / salah','to differ, to be wrong')],[e('その答えは違います。','Sono kotae wa chigaimasu.','Jawaban itu salah.')]),
+c('246 違','間違える',[r('まちがえる','machigaeru','salah','to make a mistake')],[e('道を間違えました。','Michi o machigaemashita.','Saya salah jalan.')]),
+c('247 直','直す',[r('なおす','naosu','memperbaiki','to fix')],[e('間違いを直します。','Machigai o naoshimasu.','Saya membetulkan kesalahan.')]),
+c('247 直','直接',[r('ちょくせつ','chokusetsu','langsung','direct')],[e('直接、本人に聞きます。','Chokusetsu, honnin ni kikimasu.','Saya bertanya langsung ke orangnya.')]),
+c('248 復','復習',[r('ふくしゅう','fukushū','mengulang pelajaran','review')],[e('家で授業の復習をします。','Ie de jugyō no fukushū o shimasu.','Di rumah saya mengulang pelajaran.')]),
+c('248 復','往復',[r('おうふく','ōfuku','pulang-pergi','round trip')],[e('往復のチケットを買います。','Ōfuku no chiketto o kaimasu.','Saya membeli tiket pulang-pergi.')]),
+c('249 辞','辞書',[r('じしょ','jisho','kamus','dictionary')],[e('辞書で意味を調べます。','Jisho de imi o shirabemasu.','Saya mencari arti di kamus.')]),
+c('249 辞','辞める',[r('やめる','yameru','berhenti (kerja)','to quit, to resign')],[e('来月、会社を辞めます。','Raigetsu, kaisha o yamemasu.','Bulan depan saya berhenti dari perusahaan.')]),
+c('250 宿','宿題',[r('しゅくだい','shukudai','PR','homework')],[e('今日は宿題がたくさんあります。','Kyō wa shukudai ga takusan arimasu.','Hari ini banyak PR.')]),
+c('250 宿','下宿',[r('げしゅく','geshuku','indekos','lodgings')],[e('大学の近くで下宿しています。','Daigaku no chikaku de geshuku shite imasu.','Saya indekos di dekat kampus.')]),
+];
+/* 4日目 作文（漢字251〜258） */
+const L28=[
+c('251 昨','昨日',[r('きのう','kinō','kemarin','yesterday')],[e('昨日は友達に会いました。','Kinō wa tomodachi ni aimashita.','Kemarin saya bertemu teman.')]),
+c('251 昨','昨年',[r('さくねん','sakunen','tahun lalu','last year')],[e('昨年、日本に来ました。','Sakunen, Nihon ni kimashita.','Tahun lalu saya datang ke Jepang.')]),
+c('252 君','〜君',[r('くん','kun','(panggilan untuk laki-laki muda)','honorific for males')],[e('田中君は私の友達です。','Tanaka-kun wa watashi no tomodachi desu.','Tanaka adalah teman saya.')]),
+c('252 君','君',[r('きみ','kimi','kamu','you')],[e('君の意見を聞きたいです。','Kimi no iken o kikitai desu.','Saya ingin mendengar pendapatmu.')]),
+c('253 結','結局',[r('けっきょく','kekkyoku','akhirnya','after all')],[e('結局、行きませんでした。','Kekkyoku, ikimasen deshita.','Akhirnya saya tidak jadi pergi.')]),
+c('253 結','結ぶ',[r('むすぶ','musubu','mengikat / menghubungkan','to tie, to connect')],[e('くつのひもを結びます。','Kutsu no himo o musubimasu.','Saya mengikat tali sepatu.')]),
+c('254 婚','結婚',[r('けっこん','kekkon','pernikahan','marriage')],[e('来年、結婚します。','Rainen, kekkon shimasu.','Tahun depan saya menikah.')]),
+c('254 婚','新婚旅行',[r('しんこんりょこう','shinkon ryokō','bulan madu','honeymoon')],[e('新婚旅行でハワイに行きました。','Shinkon ryokō de Hawai ni ikimashita.','Kami berbulan madu ke Hawaii.')]),
+c('255 祝','祝日',[r('しゅくじつ','shukujitsu','hari libur nasional','national holiday')],[e('明日は祝日です。','Ashita wa shukujitsu desu.','Besok hari libur nasional.')]),
+c('255 祝','祝う',[r('いわう','iwau','merayakan','to celebrate')],[e('友達の誕生日を祝います。','Tomodachi no tanjōbi o iwaimasu.','Saya merayakan ulang tahun teman.')]),
+c('256 曲','曲',[r('きょく','kyoku','lagu / musik','a piece of music')],[e('好きな曲を聞きます。','Suki na kyoku o kikimasu.','Saya mendengarkan lagu favorit.')]),
+c('256 曲','曲がる',[r('まがる','magaru','berbelok','to turn, to bend')],[e('次の角を右に曲がります。','Tsugi no kado o migi ni magarimasu.','Saya belok kanan di tikungan berikutnya.')]),
+c('257 奥','奥さん',[r('おくさん','okusan','istri (orang lain)','(someone else) wife')],[e('田中さんの奥さんは先生です。','Tanaka-san no okusan wa sensei desu.','Istri Pak Tanaka seorang guru.')]),
+c('257 奥','奥',[r('おく','oku','bagian dalam','the inmost part')],[e('店の奥に席があります。','Mise no oku ni seki ga arimasu.','Ada tempat duduk di bagian dalam toko.')]),
+c('258 寝','寝る',[r('ねる','neru','tidur','to sleep')],[e('昨日は早く寝ました。','Kinō wa hayaku nemashita.','Kemarin saya tidur lebih awal.')]),
+c('258 寝','寝坊',[r('ねぼう','nebō','bangun kesiangan','oversleeping')],[e('寝坊して遅刻しました。','Nebō shite chikoku shimashita.','Saya bangun kesiangan lalu terlambat.')]),
+];
+/* 5日目 問診票―歯科で（漢字259〜266） */
+const L29=[
+c('259 痛','痛い',[r('いたい','itai','sakit','painful')],[e('歯がとても痛いです。','Ha ga totemo itai desu.','Gigi saya sangat sakit.')]),
+c('259 痛','頭痛',[r('ずつう','zutsū','sakit kepala','headache')],[e('頭痛がするので薬を飲みます。','Zutsū ga suru node kusuri o nomimasu.','Karena sakit kepala saya minum obat.')]),
+c('260 熱','熱',[r('ねつ','netsu','demam / panas','fever, heat')],[e('熱が出て会社を休みました。','Netsu ga dete kaisha o yasumimashita.','Saya demam lalu tidak masuk kerja.')]),
+c('260 熱','熱い',[r('あつい','atsui','panas','hot')],[e('このお茶は熱いです。','Kono ocha wa atsui desu.','Teh ini panas.')]),
+c('261 虫','虫',[r('むし','mushi','serangga','insect')],[e('部屋に虫が入りました。','Heya ni mushi ga hairimashita.','Ada serangga masuk ke kamar.')]),
+c('262 歯','歯',[r('は','ha','gigi','teeth')],[e('食事の後に歯をみがきます。','Shokuji no ato ni ha o migakimasu.','Saya menyikat gigi setelah makan.')]),
+c('262 歯','歯医者',[r('はいしゃ','haisha','dokter gigi','dentist')],[e('歯が痛いので歯医者に行きます。','Ha ga itai node haisha ni ikimasu.','Karena gigi sakit saya ke dokter gigi.')]),
+c('262 歯','虫歯',[r('むしば','mushiba','gigi berlubang','cavity')],[e('甘い物ばかり食べて虫歯になりました。','Amai mono bakari tabete mushiba ni narimashita.','Karena banyak makan manis, gigi saya berlubang.')]),
+c('263 治','治る',[r('なおる','naoru','sembuh','to heal')],[e('風邪がやっと治りました。','Kaze ga yatto naorimashita.','Flu saya akhirnya sembuh.')]),
+c('263 治','治療',[r('ちりょう','chiryō','perawatan / pengobatan','treatment')],[e('歯の治療を受けます。','Ha no chiryō o ukemasu.','Saya menjalani perawatan gigi.')]),
+c('263 治','政治',[r('せいじ','seiji','politik','politics')],[e('政治のニュースを見ます。','Seiji no nyūsu o mimasu.','Saya menonton berita politik.')]),
+c('264 汚','汚い',[r('きたない','kitanai','kotor','dirty')],[e('手が汚いので洗います。','Te ga kitanai node araimasu.','Karena tangan kotor saya mencucinya.')]),
+c('264 汚','汚れる',[r('よごれる','yogoreru','menjadi kotor','to become dirty')],[e('遊んで服が汚れました。','Asonde fuku ga yogoremashita.','Baju saya kotor karena bermain.')]),
+c('265 並','並ぶ',[r('ならぶ','narabu','berbaris / antre','to line up')],[e('バス停に人が並んでいます。','Basu tei ni hito ga narande imasu.','Orang-orang mengantre di halte.')]),
+c('265 並','並べる',[r('ならべる','naraberu','menyusun / menata','to line up (things)')],[e('机に本を並べます。','Tsukue ni hon o narabemasu.','Saya menata buku di meja.')]),
+c('266 他','他の',[r('ほかの','hoka no','lain','other')],[e('他の店も見てみます。','Hoka no mise mo mite mimasu.','Saya juga melihat toko lain.')]),
+c('266 他','その他',[r('そのた','sonota','lain-lain','etc., other')],[e('その他の質問はありますか。','Sonota no shitsumon wa arimasu ka.','Apakah ada pertanyaan lain?')]),
+];
+/* 6日目 問診票―健康診断（漢字267〜274） */
+const L30=[
+c('267 身','身長',[r('しんちょう','shinchō','tinggi badan','height')],[e('身長は百七十センチです。','Shinchō wa hyaku-nanajū senchi desu.','Tinggi badan saya 170 cm.')]),
+c('267 身','独身',[r('どくしん','dokushin','lajang','single, unmarried')],[e('兄はまだ独身です。','Ani wa mada dokushin desu.','Kakak saya masih lajang.')]),
+c('267 身','刺身',[r('さしみ','sashimi','sashimi','sashimi')],[e('新鮮な刺身を食べました。','Shinsen na sashimi o tabemashita.','Saya makan sashimi yang segar.')]),
+c('268 酒','お酒',[r('おさけ','osake','minuman keras','alcohol')],[e('私はあまりお酒を飲みません。','Watashi wa amari osake o nomimasen.','Saya jarang minum alkohol.')]),
+c('268 酒','日本酒',[r('にほんしゅ','nihonshu','sake','sake')],[e('日本酒は米から作ります。','Nihonshu wa kome kara tsukurimasu.','Sake dibuat dari beras.')]),
+c('268 酒','酒屋',[r('さかや','sakaya','toko minuman keras','liquor store')],[e('酒屋でビールを買います。','Sakaya de bīru o kaimasu.','Saya membeli bir di toko minuman.')]),
+c('269 吸','吸う',[r('すう','sū','menghirup / menghisap','to breathe in, to smoke')],[e('ここでたばこを吸ってはいけません。','Koko de tabako o sutte wa ikemasen.','Dilarang merokok di sini.')]),
+c('269 吸','呼吸',[r('こきゅう','kokyū','pernapasan','breathing')],[e('ゆっくり深く呼吸してください。','Yukkuri fukaku kokyū shite kudasai.','Bernapaslah dalam-dalam dengan perlahan.')]),
+c('270 欲','食欲',[r('しょくよく','shokuyoku','nafsu makan','appetite')],[e('夏は食欲がなくなります。','Natsu wa shokuyoku ga nakunarimasu.','Di musim panas nafsu makan berkurang.')]),
+c('270 欲','欲しい',[r('ほしい','hoshii','ingin / mau','to want')],[e('新しいパソコンが欲しいです。','Atarashii pasokon ga hoshii desu.','Saya ingin komputer baru.')]),
+c('271 眠','眠い',[r('ねむい','nemui','mengantuk','sleepy')],[e('昨日よく寝たのに眠いです。','Kinō yoku neta noni nemui desu.','Padahal tidur nyenyak, saya masih mengantuk.')]),
+c('271 眠','睡眠',[r('すいみん','suimin','tidur (istirahat)','sleep')],[e('睡眠が足りていません。','Suimin ga tarite imasen.','Waktu tidur saya kurang.')]),
+c('272 疲','疲れる',[r('つかれる','tsukareru','lelah','to get tired')],[e('たくさん歩いて疲れました。','Takusan aruite tsukaremashita.','Saya lelah karena banyak berjalan.')]),
+c('273 息','息',[r('いき','iki','napas','breath')],[e('走ったので息が切れました。','Hashitta node iki ga kiremashita.','Saya terengah-engah karena berlari.')]),
+c('273 息','息子',[r('むすこ','musuko','anak laki-laki','son')],[e('息子は今、高校生です。','Musuko wa ima, kōkōsei desu.','Anak laki-laki saya sekarang SMA.')]),
+c('274 呼','呼ぶ',[r('よぶ','yobu','memanggil','to call')],[e('すぐにタクシーを呼んでください。','Sugu ni takushī o yonde kudasai.','Tolong segera panggil taksi.')]),
+c('274 呼','呼吸',[r('こきゅう','kokyū','pernapasan','breathing')],[e('運動して呼吸が速くなりました。','Undō shite kokyū ga hayaku narimashita.','Napas saya jadi cepat setelah berolahraga.')]),
+];
+
+/* --- 第6週 よむ --- */
+/* 1日目 天気予報（漢字281〜288） */
+const L31=[
+c('281 報','予報',[r('よほう','yohō','ramalan (cuaca)','forecast')],[e('天気予報を見てから出かけます。','Tenki yohō o mite kara dekakemasu.','Saya keluar setelah melihat ramalan cuaca.')]),
+c('281 報','報告',[r('ほうこく','hōkoku','laporan','report')],[e('結果を先生に報告します。','Kekka o sensei ni hōkoku shimasu.','Saya melaporkan hasilnya ke guru.')]),
+c('282 晴','晴れる',[r('はれる','hareru','cerah','to be sunny')],[e('明日はよく晴れるでしょう。','Ashita wa yoku hareru deshō.','Besok mungkin akan cerah.')]),
+c('282 晴','晴れ',[r('はれ','hare','cuaca cerah','fine weather')],[e('今日は気持ちのいい晴れです。','Kyō wa kimochi no ii hare desu.','Hari ini cuaca cerah yang menyenangkan.')]),
+c('283 雲','雲',[r('くも','kumo','awan','cloud')],[e('空に黒い雲が広がっています。','Sora ni kuroi kumo ga hirogatte imasu.','Awan hitam menyebar di langit.')]),
+c('284 吹','吹く',[r('ふく','fuku','bertiup','to blow')],[e('今日は強い風が吹いています。','Kyō wa tsuyoi kaze ga fuite imasu.','Hari ini angin bertiup kencang.')]),
+c('285 暖','暖かい',[r('あたたかい','atatakai','hangat','warm')],[e('春になって暖かくなりました。','Haru ni natte atatakaku narimashita.','Setelah musim semi menjadi hangat.')]),
+c('285 暖','暖房',[r('だんぼう','danbō','pemanas ruangan','heater')],[e('寒いので暖房をつけます。','Samui node danbō o tsukemasu.','Karena dingin saya menyalakan pemanas.')]),
+c('286 雪','雪',[r('ゆき','yuki','salju','snow')],[e('北の地方では雪がたくさん降ります。','Kita no chihō de wa yuki ga takusan furimasu.','Di daerah utara turun banyak salju.')]),
+c('287 震','地震',[r('じしん','jishin','gempa bumi','earthquake')],[e('昨夜、大きな地震がありました。','Sakuya, ōkina jishin ga arimashita.','Tadi malam ada gempa besar.')]),
+c('287 震','震度',[r('しんど','shindo','skala gempa','seismic intensity')],[e('震度三の地震でした。','Shindo san no jishin deshita.','Gempanya berskala intensitas 3.')]),
+c('288 波','波',[r('なみ','nami','ombak','wave')],[e('今日は海の波が高いです。','Kyō wa umi no nami ga takai desu.','Hari ini ombak laut tinggi.')]),
+c('288 波','津波',[r('つなみ','tsunami','tsunami','tsunami')],[e('地震の後、津波に注意します。','Jishin no ato, tsunami ni chūi shimasu.','Setelah gempa, waspada terhadap tsunami.')]),
+c('288 波','電波',[r('でんぱ','denpa','sinyal / gelombang','signal')],[e('ここは電波が悪いです。','Koko wa denpa ga warui desu.','Sinyal di sini buruk.')]),
+];
+/* 2日目 求人広告（漢字289〜296） */
+const L32=[
+c('289 求','求人',[r('きゅうじん','kyūjin','lowongan kerja','help wanted')],[e('新聞の求人広告を見ます。','Shinbun no kyūjin kōkoku o mimasu.','Saya melihat iklan lowongan di koran.')]),
+c('289 求','求める',[r('もとめる','motomeru','meminta / mencari','to demand, to seek')],[e('会社は経験のある人を求めています。','Kaisha wa keiken no aru hito o motomete imasu.','Perusahaan mencari orang berpengalaman.')]),
+c('290 募','募集',[r('ぼしゅう','boshū','rekrutmen','recruitment')],[e('アルバイトを募集しています。','Arubaito o boshū shite imasu.','Kami membuka lowongan kerja paruh waktu.')]),
+c('291 職','職場',[r('しょくば','shokuba','tempat kerja','workplace')],[e('私の職場は駅の近くです。','Watashi no shokuba wa eki no chikaku desu.','Tempat kerja saya dekat stasiun.')]),
+c('291 職','職業',[r('しょくぎょう','shokugyō','pekerjaan / profesi','occupation')],[e('ご職業は何ですか。','Goshokugyō wa nan desu ka.','Apa profesi Anda?')]),
+c('291 職','転職',[r('てんしょく','tenshoku','pindah kerja','changing jobs')],[e('来年、転職を考えています。','Rainen, tenshoku o kangaete imasu.','Tahun depan saya berpikir pindah kerja.')]),
+c('292 容','内容',[r('ないよう','naiyō','isi','contents')],[e('メールの内容を確認します。','Mēru no naiyō o kakunin shimasu.','Saya memeriksa isi email.')]),
+c('292 容','美容院',[r('びよういん','biyōin','salon','hair salon')],[e('美容院で髪を切ります。','Biyōin de kami o kirimasu.','Saya memotong rambut di salon.')]),
+c('293 技','技術',[r('ぎじゅつ','gijutsu','teknologi / keahlian','technology, technique')],[e('新しい技術を学びます。','Atarashii gijutsu o manabimasu.','Saya mempelajari teknologi baru.')]),
+c('293 技','技術者',[r('ぎじゅつしゃ','gijutsusha','teknisi','technician')],[e('彼は優秀な技術者です。','Kare wa yūshū na gijutsusha desu.','Dia teknisi yang hebat.')]),
+c('294 般','一般',[r('いっぱん','ippan','umum','general')],[e('一般の人も参加できます。','Ippan no hito mo sanka dekimasu.','Masyarakat umum juga bisa ikut.')]),
+c('294 般','一般に',[r('いっぱんに','ippan ni','secara umum','in general')],[e('一般に、朝は道が混みます。','Ippan ni, asa wa michi ga komimasu.','Umumnya, pagi hari jalan macet.')]),
+c('295 務','事務',[r('じむ','jimu','pekerjaan kantor','office work')],[e('会社で事務の仕事をしています。','Kaisha de jimu no shigoto o shite imasu.','Saya bekerja bagian administrasi di kantor.')]),
+c('295 務','事務所',[r('じむしょ','jimusho','kantor','office')],[e('事務所に電話します。','Jimusho ni denwa shimasu.','Saya menelepon ke kantor.')]),
+c('295 務','公務員',[r('こうむいん','kōmuin','pegawai negeri','civil servant')],[e('兄は公務員です。','Ani wa kōmuin desu.','Kakak saya pegawai negeri.')]),
+c('296 課','課長',[r('かちょう','kachō','kepala seksi','section chief')],[e('この件は課長に相談します。','Kono ken wa kachō ni sōdan shimasu.','Hal ini saya konsultasikan ke kepala seksi.')]),
+c('296 課','第一課',[r('だいいっか','daiikka','pelajaran satu','lesson one')],[e('今日は第一課を勉強します。','Kyō wa daiikka o benkyō shimasu.','Hari ini kami belajar pelajaran satu.')]),
+];
+/* 3日目 スポーツ記事（漢字297〜304） */
+const L33=[
+c('297 球','野球',[r('やきゅう','yakyū','bisbol','baseball')],[e('週末に野球の試合を見ます。','Shūmatsu ni yakyū no shiai o mimasu.','Akhir pekan saya menonton pertandingan bisbol.')]),
+c('297 球','地球',[r('ちきゅう','chikyū','bumi','the earth')],[e('地球は丸いです。','Chikyū wa marui desu.','Bumi itu bulat.')]),
+c('297 球','電球',[r('でんきゅう','denkyū','bola lampu','light bulb')],[e('電球が切れたので取り替えます。','Denkyū ga kireta node torikaemasu.','Bola lampu mati jadi saya ganti.')]),
+c('298 決','決める',[r('きめる','kimeru','memutuskan','to decide')],[e('旅行の日を決めます。','Ryokō no hi o kimemasu.','Saya menentukan tanggal perjalanan.')]),
+c('298 決','決まる',[r('きまる','kimaru','diputuskan','to be decided')],[e('会議の時間が決まりました。','Kaigi no jikan ga kimarimashita.','Waktu rapat sudah ditentukan.')]),
+c('298 決','決勝',[r('けっしょう','kesshō','final','final game')],[e('チームは決勝に進みました。','Chīmu wa kesshō ni susumimashita.','Tim maju ke babak final.')]),
+c('299 勝','勝つ',[r('かつ','katsu','menang','to win')],[e('大事な試合に勝ちました。','Daiji na shiai ni kachimashita.','Kami menang di pertandingan penting.')]),
+c('299 勝','優勝',[r('ゆうしょう','yūshō','juara','championship')],[e('私たちのチームが優勝しました。','Watashitachi no chīmu ga yūshō shimashita.','Tim kami menjadi juara.')]),
+c('300 対','反対',[r('はんたい','hantai','lawan / menentang','opposite, against')],[e('私はその意見に反対です。','Watashi wa sono iken ni hantai desu.','Saya menentang pendapat itu.')]),
+c('300 対','〜対〜',[r('たい','tai','(skor) lawan','versus')],[e('三対二で勝ちました。','San tai ni de kachimashita.','Kami menang tiga lawan dua.')]),
+c('301 流','流れる',[r('ながれる','nagareru','mengalir','to flow')],[e('川がゆっくり流れています。','Kawa ga yukkuri nagarete imasu.','Sungai mengalir perlahan.')]),
+c('301 流','流す',[r('ながす','nagasu','mengalirkan','to let flow')],[e('トイレの水を流します。','Toire no mizu o nagashimasu.','Saya menyiram air toilet.')]),
+c('302 負','負ける',[r('まける','makeru','kalah','to lose')],[e('試合に負けて悔しいです。','Shiai ni makete kuyashii desu.','Saya kesal karena kalah bertanding.')]),
+c('302 負','勝負',[r('しょうぶ','shōbu','pertandingan / laga','a match')],[e('今日はいい勝負でした。','Kyō wa ii shōbu deshita.','Hari ini pertandingan yang seru.')]),
+c('303 投','投げる',[r('なげる','nageru','melempar','to throw')],[e('ボールを遠くへ投げます。','Bōru o tōku e nagemasu.','Saya melempar bola jauh.')]),
+c('303 投','投手',[r('とうしゅ','tōshu','pelempar (pitcher)','pitcher')],[e('あの投手はとても速いです。','Ano tōshu wa totemo hayai desu.','Pelempar itu sangat cepat.')]),
+c('304 果','結果',[r('けっか','kekka','hasil','result')],[e('試験の結果が出ました。','Shiken no kekka ga demashita.','Hasil ujian sudah keluar.')]),
+c('304 果','果物',[r('くだもの','kudamono','buah','fruit')],[e('私は果物が大好きです。','Watashi wa kudamono ga daisuki desu.','Saya sangat suka buah.')]),
+];
+/* 4日目 経済（漢字305〜312） */
+const L34=[
+c('305 戦','戦争',[r('せんそう','sensō','perang','war')],[e('戦争のない世界を願います。','Sensō no nai sekai o negaimasu.','Saya mendambakan dunia tanpa perang.')]),
+c('305 戦','戦う',[r('たたかう','tatakau','bertarung / berjuang','to fight')],[e('強い相手と戦います。','Tsuyoi aite to tatakaimasu.','Saya bertarung dengan lawan yang kuat.')]),
+c('305 戦','戦後',[r('せんご','sengo','pascaperang','after the war')],[e('戦後、日本は大きく変わりました。','Sengo, Nihon wa ōkiku kawarimashita.','Setelah perang, Jepang berubah besar.')]),
+c('306 経','経験',[r('けいけん','keiken','pengalaman','experience')],[e('留学でいい経験をしました。','Ryūgaku de ii keiken o shimashita.','Saya mendapat pengalaman baik saat studi.')]),
+c('306 経','経営',[r('けいえい','keiei','manajemen / mengelola','management')],[e('父は小さな会社を経営しています。','Chichi wa chiisana kaisha o keiei shite imasu.','Ayah saya mengelola perusahaan kecil.')]),
+c('307 済','経済',[r('けいざい','keizai','ekonomi','economy')],[e('大学で経済を勉強します。','Daigaku de keizai o benkyō shimasu.','Saya belajar ekonomi di universitas.')]),
+c('307 済','済む',[r('すむ','sumu','selesai','to finish')],[e('用事が早く済みました。','Yōji ga hayaku sumimashita.','Urusan saya cepat selesai.')]),
+c('308 成','成長',[r('せいちょう','seichō','pertumbuhan','growth')],[e('子どもの成長は早いです。','Kodomo no seichō wa hayai desu.','Pertumbuhan anak itu cepat.')]),
+c('308 成','完成',[r('かんせい','kansei','selesai (jadi)','completion')],[e('新しいビルが完成しました。','Atarashii biru ga kansei shimashita.','Gedung baru telah selesai dibangun.')]),
+c('309 貿','貿易',[r('ぼうえき','bōeki','perdagangan','trade')],[e('貿易の仕事をしています。','Bōeki no shigoto o shite imasu.','Saya bekerja di bidang perdagangan.')]),
+c('310 易','易しい',[r('やさしい','yasashii','mudah','easy')],[e('この問題はとても易しいです。','Kono mondai wa totemo yasashii desu.','Soal ini sangat mudah.')]),
+c('311 輸','輸出',[r('ゆしゅつ','yushutsu','ekspor','export')],[e('この国は車を海外に輸出します。','Kono kuni wa kuruma o kaigai ni yushutsu shimasu.','Negara ini mengekspor mobil ke luar negeri.')]),
+c('311 輸','輸入',[r('ゆにゅう','yunyū','impor','import')],[e('日本は石油を輸入しています。','Nihon wa sekiyu o yunyū shite imasu.','Jepang mengimpor minyak.')]),
+c('312 相','相談',[r('そうだん','sōdan','konsultasi','consultation')],[e('困ったとき、先生に相談します。','Komatta toki, sensei ni sōdan shimasu.','Saat kesulitan, saya berkonsultasi ke guru.')]),
+c('312 相','相手',[r('あいて','aite','lawan / pasangan bicara','partner, opponent')],[e('話し相手がいなくて寂しいです。','Hanashi aite ga inakute sabishii desu.','Saya kesepian karena tidak ada teman bicara.')]),
+c('312 相','首相',[r('しゅしょう','shushō','perdana menteri','prime minister')],[e('首相が演説をしました。','Shushō ga enzetsu o shimashita.','Perdana menteri berpidato.')]),
+];
+/* 5日目 地球温暖化（漢字313〜320） */
+const L35=[
+c('313 化','文化',[r('ぶんか','bunka','budaya','culture')],[e('日本の文化に興味があります。','Nihon no bunka ni kyōmi ga arimasu.','Saya tertarik pada budaya Jepang.')]),
+c('313 化','化学',[r('かがく','kagaku','kimia','chemistry')],[e('化学の授業が好きです。','Kagaku no jugyō ga suki desu.','Saya suka pelajaran kimia.')]),
+c('313 化','〜化',[r('か','ka','menjadi 〜 / -isasi','-ize')],[e('工場が機械化されました。','Kōjō ga kikaika saremashita.','Pabrik itu dimekanisasi.')]),
+c('314 比','比べる',[r('くらべる','kuraberu','membandingkan','to compare')],[e('二つの品物を比べます。','Futatsu no shinamono o kurabemasu.','Saya membandingkan dua barang.')]),
+c('315 原','原料',[r('げんりょう','genryō','bahan baku','raw material')],[e('この製品の原料は米です。','Kono seihin no genryō wa kome desu.','Bahan baku produk ini adalah beras.')]),
+c('316 因','原因',[r('げんいん','gen-in','penyebab','cause')],[e('事故の原因を調べます。','Jiko no gen-in o shirabemasu.','Saya menyelidiki penyebab kecelakaan.')]),
+c('317 際','国際',[r('こくさい','kokusai','internasional','international')],[e('国際会議に出席します。','Kokusai kaigi ni shusseki shimasu.','Saya menghadiri konferensi internasional.')]),
+c('317 際','交際',[r('こうさい','kōsai','berpacaran / bergaul','association')],[e('二人は三年、交際しています。','Futari wa sannen, kōsai shite imasu.','Mereka berdua berpacaran selama tiga tahun.')]),
+c('318 議','会議',[r('かいぎ','kaigi','rapat','meeting')],[e('午後から会議があります。','Gogo kara kaigi ga arimasu.','Ada rapat mulai siang.')]),
+c('318 議','議員',[r('ぎいん','giin','anggota dewan','assembly member')],[e('彼は市の議員です。','Kare wa shi no giin desu.','Dia anggota dewan kota.')]),
+c('319 活','生活',[r('せいかつ','seikatsu','kehidupan','life')],[e('日本での生活に慣れました。','Nihon de no seikatsu ni naremashita.','Saya sudah terbiasa hidup di Jepang.')]),
+c('319 活','活動',[r('かつどう','katsudō','aktivitas','activity')],[e('ボランティア活動に参加します。','Borantia katsudō ni sanka shimasu.','Saya ikut kegiatan sukarela.')]),
+c('320 変','大変な',[r('たいへんな','taihen na','berat / repot','serious, tough')],[e('昨日は大変な一日でした。','Kinō wa taihen na ichinichi deshita.','Kemarin adalah hari yang berat.')]),
+c('320 変','変わる',[r('かわる','kawaru','berubah','to change')],[e('天気が急に変わりました。','Tenki ga kyū ni kawarimashita.','Cuaca berubah tiba-tiba.')]),
+c('320 変','変える',[r('かえる','kaeru','mengubah','to change (something)')],[e('急に予定を変えました。','Kyū ni yotei o kaemashita.','Saya mengubah jadwal secara mendadak.')]),
+];
+/* 6日目 政治（漢字321〜328） */
+const L36=[
+c('321 政','政治',[r('せいじ','seiji','politik','politics')],[e('政治のニュースに関心があります。','Seiji no nyūsu ni kanshin ga arimasu.','Saya tertarik pada berita politik.')]),
+c('321 政','政治家',[r('せいじか','seijika','politikus','politician')],[e('有名な政治家に会いました。','Yūmei na seijika ni aimashita.','Saya bertemu politikus terkenal.')]),
+c('322 府','政府',[r('せいふ','seifu','pemerintah','government')],[e('政府が新しい政策を発表しました。','Seifu ga atarashii seisaku o happyō shimashita.','Pemerintah mengumumkan kebijakan baru.')]),
+c('322 府','都道府県',[r('とどうふけん','todōfuken','prefektur (pembagian wilayah)','prefectures')],[e('日本には四十七の都道府県があります。','Nihon ni wa yonjūnana no todōfuken ga arimasu.','Jepang memiliki 47 prefektur.')]),
+c('323 改','改正',[r('かいせい','kaisei','amandemen / revisi','amendment')],[e('法律が改正されました。','Hōritsu ga kaisei saremashita.','Undang-undang telah direvisi.')]),
+c('323 改','改札口',[r('かいさつぐち','kaisatsuguchi','gerbang tiket','ticket gate')],[e('駅の改札口で待っています。','Eki no kaisatsuguchi de matte imasu.','Saya menunggu di gerbang tiket stasiun.')]),
+c('324 否','否定',[r('ひてい','hitei','penyangkalan','negation')],[e('彼はそのうわさを否定しました。','Kare wa sono uwasa o hitei shimashita.','Dia menyangkal rumor itu.')]),
+c('325 的','目的',[r('もくてき','mokuteki','tujuan','purpose')],[e('旅行の目的は何ですか。','Ryokō no mokuteki wa nan desu ka.','Apa tujuan perjalanannya?')]),
+c('325 的','個人的な',[r('こじんてきな','kojinteki na','pribadi','personal')],[e('これは個人的な意見です。','Kore wa kojinteki na iken desu.','Ini pendapat pribadi.')]),
+c('326 実','実は',[r('じつは','jitsu wa','sebenarnya','to tell the truth')],[e('実は、お願いがあります。','Jitsu wa, onegai ga arimasu.','Sebenarnya, saya ada permintaan.')]),
+c('326 実','実験',[r('じっけん','jikken','eksperimen','experiment')],[e('理科の実験をします。','Rika no jikken o shimasu.','Saya melakukan eksperimen IPA.')]),
+c('327 欠','欠点',[r('けってん','ketten','kekurangan','shortcoming')],[e('誰にでも欠点があります。','Dare ni demo ketten ga arimasu.','Semua orang punya kekurangan.')]),
+c('327 欠','欠席',[r('けっせき','kesseki','absen','absence')],[e('病気で会議を欠席します。','Byōki de kaigi o kesseki shimasu.','Saya absen rapat karena sakit.')]),
+c('328 専','専門',[r('せんもん','senmon','spesialisasi','specialty')],[e('大学での専門は経済です。','Daigaku de no senmon wa keizai desu.','Bidang saya di universitas adalah ekonomi.')]),
+c('328 専','専門家',[r('せんもんか','senmonka','ahli','expert')],[e('この問題は専門家に聞きます。','Kono mondai wa senmonka ni kikimasu.','Masalah ini saya tanyakan ke ahli.')]),
+];
+
+const WEEKS=[
+  {label:'第1週\nでかける①', days:[
+    {label:'1日目\n駐車場',data:L1},
+    {label:'2日目\n横断歩道',data:L2},
+    {label:'3日目\nサイン',data:L3},
+    {label:'4日目\n駅のホーム',data:L4},
+    {label:'5日目\n特急電車',data:L5},
+    {label:'6日目\nバス',data:L6},
+  ]},
+  {label:'第2週\nでかける②', days:[
+    {label:'1日目\nレストラン',data:L7},
+    {label:'2日目\n禁煙',data:L8},
+    {label:'3日目\n観光地図',data:L9},
+    {label:'4日目\n街の地図',data:L10},
+    {label:'5日目\n病院',data:L11},
+    {label:'6日目\n困ったとき',data:L12},
+  ]},
+ {label:'第3週\nつかう', days:[
+    {label:'1日目\n要冷蔵',data:L13},
+    {label:'2日目\n消費期限',data:L14},
+    {label:'3日目\n自動販売機',data:L15},
+    {label:'4日目\nレシピ',data:L16},
+    {label:'5日目\nコピー機',data:L17},
+    {label:'6日目\n携帯電話',data:L18},
+  ]},
+ {label:'第4週\nかう', days:[
+    {label:'1日目\n日用品',data:L19},
+    {label:'2日目\n広告メール',data:L20},
+    {label:'3日目\n通信販売',data:L21},
+    {label:'4日目\n申込書',data:L22},
+    {label:'5日目\n注文',data:L23},
+    {label:'6日目\n不在通知',data:L24},
+  ]},
+ {label:'第5週\nかく', days:[
+    {label:'1日目\nメール',data:L25},
+    {label:'2日目\nアンケート',data:L26},
+    {label:'3日目\n日本語クラス',data:L27},
+    {label:'4日目\n作文',data:L28},
+    {label:'5日目\n歯科',data:L29},
+    {label:'6日目\n健康診断',data:L30},
+  ]},
+ {label:'第6週\nよむ', days:[
+    {label:'1日目\n天気予報',data:L31},
+    {label:'2日目\n求人広告',data:L32},
+    {label:'3日目\nスポーツ',data:L33},
+    {label:'4日目\n経済',data:L34},
+    {label:'5日目\n地球温暖化',data:L35},
+    {label:'6日目\n政治',data:L36},
+  ]},
+];
+
+/* ===== 漢字選び 問題データ（漢字番号1〜50） ===== */
+const KANJI_CHOICE=[
+q(1,'駐','ちゅうしゃ','ここに{}してもいいですか。','駐車',['注車','駅車','柱車']),
+q(1,'駐','ちゅうしゃじょう','{}は建物の後ろにあります。','駐車場',['注車場','駅車場','柱車場']),
+q(2,'無','むりょう','この駐車場は{}です。','無料',['舞料','撫料','蕪料']),
+q(2,'無','むきゅう','この店は年中{}です。','無休',['舞休','撫休','蕪休']),
+q(3,'満','まんしゃ','この駐車場は今、{}です。','満車',['慢車','漫車','溝車']),
+q(3,'満','まんいん','朝の電車はいつも{}です。','満員',['慢員','漫員','溝員']),
+q(3,'満','ふまん','彼はその結果に{}です。','不満',['不慢','不漫','不溝']),
+q(4,'向','ほうこう','駅はどの{}ですか。','方向',['方尚','方同','方句']),
+q(4,'向','むこう','道の{}にコンビニがあります。','向こう',['尚こう','同こう','句こう']),
+q(5,'禁','きんし','ここは駐車{}です。','禁止',['林止','焚止','楚止']),
+q(6,'関','かんしん','私は日本の文化に{}があります。','関心',['開心','間心','閲心']),
+q(6,'関','かんけい','二人の{}はとてもいいです。','関係',['開係','間係','閲係']),
+q(7,'係','かかり','受付の{}の人に聞いてください。','係',['系','保','俵']),
+q(8,'断','むだん','{}で駐車しないでください。','無断',['無継','無折','無析']),
+q(8,'断','だんすい','工事のため、明日は{}します。','断水',['継水','折水','析水']),
+q(9,'横','おうだん','ここは{}歩道です。','横断',['黄断','構断','積断']),
+q(9,'横','よこ','駅の{}にコンビニがあります。','横',['黄','構','積']),
+q(10,'押','おす','このボタンを{}ください。','押して',['抑して','担して','拍して']),
+q(11,'式','にゅうがくしき','四月に{}があります。','入学式',['入学試','入学弐','入学武']),
+q(12,'信','そうしん','メールを{}しました。','送信',['送計','送訂','送討']),
+q(12,'信','しんよう','あの店は{}があります。','信用',['信要','信票','信栗']),
+q(13,'号','しんごう','{}が赤になりました。','信号',['信昌','信呂','信旨']),
+q(14,'確','せいかく','{}な時間を教えてください。','正確',['正碓','正穫','正雅']),
+q(15,'認','かくにん','予約を{}してください。','確認',['確忍','確詔','確諾']),
+q(16,'飛','とぶ','鳥が空を{}います。','飛んで',['翻んで','翔んで','非んで']),
+q(17,'非','ひじょうぐち','{}はあちらです。','非常口',['排常口','悲常口','罪常口']),
+q(18,'常','せいじょう','機械は{}に動いています。','正常',['正堂','正掌','正賞']),
+q(19,'階','かい','事務所は三{}です。','階',['皆','諧','楷']),
+q(20,'段','かいだん','{}を上って二階へ行きます。','階段',['階没','階役','階設']),
+q(21,'箱','ごみばこ','ごみは{}に捨ててください。','ごみ箱',['ごみ相','ごみ箸','ごみ稲']),
+q(22,'危','あぶない','{}ですから、下がってください。','危ない',['厄ない','卮ない','包ない']),
+q(23,'険','きけん','高い所は{}です。','危険',['危検','危験','危剣']),
+q(24,'捨','すてる','いらない物を{}。','捨てる',['拾てる','舎てる','捜てる']),
+q(25,'線','ばんせん','電車は三{}から出ます。','番線',['番緑','番縁','番績']),
+q(26,'面','がめん','スマホの{}が割れました。','画面',['画両','画雨','画血']),
+q(27,'普','ふつう','{}電車は各駅に止まります。','普通',['晋通','昔通','昝通']),
+q(28,'各','かくえき','この電車は{}に止まります。','各駅',['名駅','客駅','格駅']),
+q(29,'次','つぎ','{}の駅で降ります。','次',['欠','吹','汰']),
+q(30,'快','かいそく','{}に乗ると早く着きます。','快速',['怪速','決速','抉速']),
+q(31,'速','こうそく','{}道路で事故がありました。','高速',['高遠','高連','高逮']),
+q(32,'過','つうか','特急はこの駅を{}します。','通過',['通週','通遇','通渦']),
+q(33,'鉄','ちかてつ','{}で会社に通っています。','地下鉄',['地下鉢','地下鉛','地下鈍']),
+q(34,'指','していせき','{}を予約しました。','指定席',['措定席','拍定席','拷定席']),
+q(35,'定','ていきゅうび','この店の{}は月曜日です。','定休日',['実休日','宝休日','宗休日']),
+q(36,'席','しゅっせき','明日の会議に{}します。','出席',['出度','出庶','出蓆']),
+q(37,'由','りゆう','遅れた{}を教えてください。','理由',['理田','理甲','理申']),
+q(38,'番','ばんごう','電話{}を教えてください。','番号',['審号','翻号','蕃号']),
+q(39,'窓','まどぐち','切符は{}で買います。','窓口',['密口','空口','突口']),
+q(40,'側','りょうがわ','道の{}に木があります。','両側',['両測','両則','両惻']),
+q(41,'路','つうろ','{}側の席に座ります。','通路',['通略','通格','通賂']),
+q(42,'停','ばすてい','{}でバスを待ちます。','バス停',['バス亭','バス庭','バス廷']),
+q(43,'整','せいりけん','バスに乗ったら{}を取ります。','整理券',['敷理券','敕理券','敢理券']),
+q(44,'券','じょうしゃけん','{}を見せてください。','乗車券',['乗車巻','乗車巷','乗車拳']),
+q(45,'現','げんきん','{}で払います。','現金',['視金','規金','親金']),
+q(46,'両','りょうしん','{}は東京に住んでいます。','両親',['雨親','丙親','再親']),
+q(47,'替','りょうがえ','銀行で{}をします。','両替',['両換','両誉','両賛']),
+q(48,'優','ゆうせんせき','{}はお年寄りに譲ります。','優先席',['憂先席','懐先席','擾先席']),
+q(49,'座','すわる','どうぞ、ここに{}ください。','座って',['坐って','庫って','摩って']),
+q(50,'降','おりる','次の駅で{}。','降りる',['隆りる','陥りる','陸りる']),
+q(59,'準','じゅんび','パーティーの{}をします。','準備',['准備','推備','雅備']),
+q(60,'備','そなえる','地震に{}水を用意します。','備えて',['準えて','俻えて','脩えて']),
+q(61,'営','えいぎょう','この店は夜十時まで{}しています。','営業',['労業','栄業','蛍業']),
+q(62,'閉','しまる','ドアが自動で{}。','閉まる',['開まる','間まる','閑まる']),
+q(63,'案','あんない','駅員が道を{}してくれました。','案内',['安内','宋内','按内']),
+q(64,'内','いない','一週間{}に返事をください。','以内',['以肉','以丙','以円']),
+q(65,'予','よてい','明日の{}を教えてください。','予定',['矛定','序定','預定']),
+q(66,'約','よやく','レストランを{}しました。','予約',['予的','予紛','予結']),
+q(67,'煙','きんえん','この店は{}です。','禁煙',['禁烟','禁咽','禁湮']),
+q(68,'当','ほんとう','それは{}の話です。','本当',['本尚','本肖','本雪']),
+q(69,'全','ぜんぶ','宿題を{}終わらせました。','全部',['金部','会部','斧部']),
+q(70,'客','きゃく','今日はお店に{}が多いです。','客',['容','額','略']),
+q(71,'様','ようす','外の{}を見てきます。','様子',['祥子','詳子','洋子']),
+q(72,'解','りかい','説明をよく{}しました。','理解',['理鮮','理触','理蟹']),
+q(73,'協','きょうりょく','ご{}をお願いします。','協力',['脅力','恊力','協刀']),
+q(74,'願','ねがう','世界の平和を{}います。','願って',['顛って','顧って','頭って']),
+q(75,'観','かんこう','京都へ{}に行きます。','観光',['勧光','歓光','権光']),
+q(76,'園','どうぶつえん','子どもと{}へ行きました。','動物園',['動物遠','動物圏','動物団']),
+q(77,'港','くうこう','{}まで友だちを迎えに行きます。','空港',['空巷','空湊','空溝']),
+q(78,'遊','あそぶ','公園で子どもたちが{}います。','遊んで',['遅んで','遍んで','游んで']),
+q(79,'美','うつくしい','山からの景色は{}です。','美しい',['羊しい','善しい','養しい']),
+q(80,'術','ぎじゅつ','日本の{}はすばらしいです。','技術',['技述','技街','技衛']),
+q(81,'神','じんじゃ','お正月に{}へ行きます。','神社',['申社','伸社','紳社']),
+q(82,'寺','おてら','古い{}を見学しました。','お寺',['お侍','お待','お特']),
+q(83,'役','しやくしょ','{}で書類をもらいます。','市役所',['市投所','市没所','市設所']),
+q(84,'郵','ゆうびん','{}で荷物を送ります。','郵便',['郎便','郡便','郷便']),
+q(85,'局','やっきょく','{}で風邪薬を買いました。','薬局',['薬居','薬届','薬屈']),
+q(86,'交','こうつう','この町は{}が便利です。','交通',['文通','父通','効通']),
+q(87,'差','さ','二人の実力に{}があります。','差',['着','善','美']),
+q(88,'点','こうさてん','次の{}を右に曲がってください。','交差点',['交差占','交差黒','交差魚']),
+q(89,'橋','はし','{}を渡って向こう側へ行きます。','橋',['僑','矯','嬌']),
+q(90,'公','こうえん','毎朝、{}を散歩します。','公園',['公遠','公圏','公囲']),
+q(91,'受','じゅけん','来年、大学を{}します。','受験',['授験','愛験','浮験']),
+q(92,'付','うけつけ','{}で名前を書いてください。','受付',['受府','受符','受附']),
+q(93,'科','かがく','{}の本を読むのが好きです。','科学',['料学','斜学','粉学']),
+q(94,'鼻','じびか','耳が痛いので{}へ行きます。','耳鼻科',['耳算科','耳弄科','耳異科']),
+q(95,'婦','しゅふ','母は{}です。','主婦',['主帰','主掃','主浮']),
+q(96,'形','かたち','この石は面白い{}です。','形',['刑','型','径']),
+q(97,'骨','こっせつ','転んで足を{}しました。','骨折',['骨析','滑折','骨祈']),
+q(98,'折','うせつ','次の角を{}してください。','右折',['右析','右拆','右祈']),
+q(99,'困','こまる','お金がなくて{}います。','困って',['因って','囚って','団って']),
+q(100,'消','けす','部屋を出るとき電気を{}。','消す',['削す','硝す','梢す']),
+q(101,'防','ふせぐ','事故を{}ために注意します。','防ぐ',['妨ぐ','肪ぐ','坊ぐ']),
+q(102,'救','きゅうきゅうしゃ','すぐに{}を呼んでください。','救急車',['求急車','球急車','捄急車']),
+q(103,'警','けいかん','{}が道を教えてくれました。','警官',['敬官','驚官','擎官']),
+q(104,'察','けいさつ','事故のときは{}に連絡します。','警察',['警擦','警際','警蔡']),
+q(105,'故','じこ','昨日、交差点で{}がありました。','事故',['事政','事放','事枚']),
+q(106,'伝','つたえる','先生によろしくと{}ください。','伝えて',['云えて','仏えて','払えて']),
+q(114,'要','ひつよう','この手続きにはパスポートが{}です。','必要',['必票','必栗','必粟']),
+q(115,'冷','つめたい','{}水が飲みたいです。','冷たい',['令たい','怜たい','鈴たい']),
+q(116,'蔵','れいぞうこ','肉を{}に入れます。','冷蔵庫',['冷臓庫','冷戴庫','冷蕨庫']),
+q(117,'凍','こおる','冬は池の水が{}。','凍る',['陳る','棟る','凛る']),
+q(118,'庫','きんこ','大事な書類は{}に入れます。','金庫',['金車','金庭','金倉']),
+q(119,'召','めしあがる','どうぞ{}ください。','召し上がって',['台し上がって','占し上がって','号し上がって']),
+q(120,'保','ほぞん','データをUSBに{}します。','保存',['採存','探存','俣存']),
+q(121,'存','ごぞんじ','この店を{}ですか。','ご存じ',['ご在じ','ご有じ','ご序じ']),
+q(122,'必','かならず','明日は{}来てください。','必ず',['心ず','忘ず','沁ず']),
+q(123,'費','ひよう','引っ越しの{}は高いです。','費用',['貴用','資用','賀用']),
+q(124,'期','きかん','試験の{}は一週間です。','期間',['基間','棋間','旗間']),
+q(125,'限','きげん','レポートの{}は金曜日です。','期限',['期恨','期眼','期根']),
+q(126,'製','せいひん','この会社の{}は人気です。','製品',['制品','裂品','剃品']),
+q(127,'造','せいぞう','この工場で車を{}しています。','製造',['製浩','製迷','製逝']),
+q(128,'賞','しょうひん','一等の{}は旅行券です。','賞品',['償品','賦品','賠品']),
+q(129,'法','ほうほう','いい{}を教えてください。','方法',['方注','方泣','方汰']),
+q(130,'温','おんど','部屋の{}を調べます。','温度',['湿度','混度','渇度']),
+q(131,'販','はんばい','このチケットは{}しています。','販売',['版売','飯売','坂売']),
+q(132,'機','きかい','この{}の使い方を教えてください。','機械',['幾械','譏械','磯械']),
+q(133,'増','ふえる','最近、観光客が{}います。','増えて',['僧えて','層えて','憎えて']),
+q(134,'減','へる','体重が少し{}ました。','減り',['滅り','感り','喊り']),
+q(135,'量','りょう','この店は料理の{}が多いです。','量',['童','里','畳']),
+q(136,'氷','こおり','ジュースに{}を入れます。','氷',['水','永','泳']),
+q(137,'返','かえす','借りた本を{}。','返す',['近す','迎す','辺す']),
+q(138,'湯','おゆ','{}を沸かしてお茶を入れます。','お湯',['お陽','お場','お揚']),
+q(139,'材','ざいりょう','料理の{}を買います。','材料',['村料','林料','枝料']),
+q(140,'卵','たまご','朝ご飯に{}を食べます。','卵',['卯','夘','即']),
+q(141,'乳','ぎゅうにゅう','毎朝、{}を飲みます。','牛乳',['牛乱','牛孔','牛乸']),
+q(142,'粉','こむぎこ','パンは{}で作ります。','小麦粉',['小麦紛','小麦粧','小麦扮']),
+q(143,'袋','てぶくろ','寒いので{}をします。','手袋',['手貸','手袈','手裟']),
+q(144,'混','まぜる','卵と牛乳をよく{}。','混ぜる',['浪ぜる','渇ぜる','湿ぜる']),
+q(145,'焼','やく','魚を{}食べます。','焼いて',['暁いて','燒いて','嬈いて']),
+q(146,'表','はっぴょう','研究の結果を{}します。','発表',['発衣','発袋','発哀']),
+q(147,'裏','うら','紙の{}に名前を書きます。','裏',['裸','壌','嚢']),
+q(148,'留','りゅうがく','来年、日本に{}します。','留学',['貿学','溜学','瑠学']),
+q(149,'守','まもる','約束は必ず{}。','守ります',['宇ります','字ります','宋ります']),
+q(150,'濃','こい','このコーヒーは{}です。','濃い',['農い','膿い','醸い']),
+q(151,'薄','うすい','この本は{}です。','薄い',['簿い','縛い','博い']),
+q(152,'部','へや','私の{}は二階です。','部屋',['陪屋','倍屋','剖屋']),
+q(153,'数','すうがく','私は{}が得意です。','数学',['教学','散学','敷学']),
+q(154,'件','じけん','町で{}がありました。','事件',['事任','事仕','事伴']),
+q(155,'再','さいせい','録音した声を{}します。','再生',['丙生','両生','冉生']),
+q(156,'接','せつぞく','インターネットに{}します。','接続',['授続','採続','控続']),
+q(157,'続','つづく','いい天気が{}います。','続いて',['読いて','績いて','緑いて']),
+q(158,'示','ひょうじ','画面に地図が{}されます。','表示',['表宗','表崇','表祭']),
+q(159,'戻','もどる','五時までに家に{}。','戻ります',['涙ります','房ります','庚ります']),
+q(160,'完','かんりょう','手続きが{}しました。','完了',['宗了','宛了','宏了']),
+q(161,'了','しゅうりょう','試験が{}しました。','終了',['終子','終予','終丁']),
+q(162,'登','とざん','週末に{}をします。','登山',['発山','澄山','瞪山']),
+q(163,'録','ろくおん','会議を{}します。','録音',['緑音','禄音','碌音']),
+q(171,'砂','さとう','コーヒーに{}を入れます。','砂糖',['沙糖','秒糖','紗糖']),
+q(172,'塩','しお','スープに{}を少し入れます。','塩',['塊','塀','壇']),
+q(173,'油','あぶら','フライパンに{}をひきます。','油',['抽','袖','柚']),
+q(174,'緑','りょくちゃ','食事の後に{}を飲みます。','緑茶',['録茶','縁茶','線茶']),
+q(175,'紅','こうちゃ','{}にミルクを入れます。','紅茶',['江茶','虹茶','缸茶']),
+q(176,'冊','さつ','図書館で本を三{}借りました。','冊',['珊','柵','棚']),
+q(177,'個','こじん','これは{}の意見です。','個人',['固人','箇人','価人']),
+q(178,'枚','まい','紙を二{}ください。','枚',['牧','枝','故']),
+q(179,'告','こうこく','新聞に{}を出します。','広告',['広吉','広占','広舎']),
+q(180,'利','べんり','この駅は{}です。','便利',['便科','便和','便私']),
+q(181,'割','わりびき','学生は{}があります。','割引',['害引','轄引','瞎引']),
+q(182,'倍','ばい','今年は去年の二{}売れました。','倍',['培','陪','剖']),
+q(183,'値','ねだん','この服の{}は高いです。','値段',['植段','置段','直段']),
+q(184,'商','しょうひん','新しい{}が入りました。','商品',['適品','滴品','敵品']),
+q(185,'支','してん','大阪に{}があります。','支店',['友店','反店','技店']),
+q(186,'払','はらう','電気代を{}。','払います',['私います','仏います','弘います']),
+q(187,'米','べいこく','兄は{}に住んでいます。','米国',['来国','未国','末国']),
+q(188,'級','こうきゅう','{}なレストランで食事します。','高級',['高吸','高扱','高汲']),
+q(189,'残','ざんぎょう','今日は{}があります。','残業',['浅業','桟業','銭業']),
+q(190,'型','おおがた','{}のトラックが通ります。','大型',['大形','大刑','大径']),
+q(191,'税','ぜいきん','毎年、{}を払います。','税金',['悦金','説金','鋭金']),
+q(192,'込','こむ','電車がとても{}います。','込んで',['入んで','辺んで','迅んで']),
+q(193,'価','かかく','商品の{}を比べます。','価格',['佃格','估格','伍格']),
+q(194,'格','ごうかく','試験に{}しました。','合格',['合略','合絡','合賂']),
+q(195,'申','もうしこむ','セミナーに{}。','申し込みます',['甲し込みます','由し込みます','田し込みます']),
+q(196,'記','にっき','毎日、{}を書きます。','日記',['日紀','日起','日紅']),
+q(197,'例','たとえば','{}、これはどうですか。','例えば',['列えば','倒えば','裂えば']),
+q(198,'齢','ねんれい','ここに{}を書いてください。','年齢',['年令','年冷','年鈴']),
+q(199,'歳','はたち','弟は今年二十{}になります。','歳',['蔵','裁','栽']),
+q(200,'性','せいべつ','ここに{}を書いてください。','性別',['姓別','牲別','惟別']),
+q(201,'連','れんきゅう','{}に旅行します。','連休',['運休','速休','逢休']),
+q(202,'絡','れんらく','あとで{}します。','連絡',['連格','連客','連略']),
+q(203,'届','とどく','荷物が今日{}。','届きました',['居きました','屈きました','尾きました']),
+q(204,'宅','じたく','{}で仕事をします。','自宅',['自宝','自宗','自宛']),
+q(205,'配','はいたつ','毎朝、新聞を{}します。','配達',['酌達','酬達','酔達']),
+q(206,'希','きぼう','配達の{}の日を選んでください。','希望',['布望','稀望','俙望']),
+q(207,'望','のぞむ','世界の平和を{}。','望みます',['忘みます','妄みます','朢みます']),
+q(208,'荷','にもつ','この{}は重いです。','荷物',['何物','苛物','河物']),
+q(209,'換','こうかん','壊れた品物を{}します。','交換',['交喚','交煥','交渙']),
+q(210,'額','きんがく','{}を確認してください。','金額',['金顔','金頗','金頷']),
+q(211,'在','ふざい','父は今、{}です。','不在',['不存','不左','不佐']),
+q(212,'取','うけとる','荷物を{}ました。','受け取り',['受け耽り','受け恥り','受け趣り']),
+q(213,'預','あずける','荷物をロッカーに{}。','預けます',['領けます','頂けます','項けます']),
+q(214,'衣','いるい','{}を洗濯します。','衣類',['依類','表類','哀類']),
+q(215,'参','さんか','会議に{}します。','参加',['惨加','診加','珍加']),
+q(216,'達','ともだち','{}と映画を見ます。','友達',['友運','友速','友連']),
+q(217,'勤','つうきん','電車で{}します。','通勤',['通勧','通勘','通勉']),
+q(218,'帯','けいたい','{}で写真を撮ります。','携帯',['携滞','携帝','携幣']),
+q(226,'礼','おれい','先生に{}を言います。','お礼',['お札','お祝','お社']),
+q(227,'伺','うかがう','明日、三時に{}。','伺います',['司います','同います','向います']),
+q(228,'遅','ちこく','電車が止まって{}しました。','遅刻',['運刻','違刻','遠刻']),
+q(229,'失','しっぱい','{}を次に生かします。','失敗',['矢敗','天敗','夫敗']),
+q(230,'汗','あせ','暑くて{}をかきました。','汗',['汁','汚','汀']),
+q(231,'念','ざんねん','会えなくて{}です。','残念',['残忘','残忍','残恋']),
+q(232,'涙','なみだ','映画を見て{}が出ました。','涙',['泪','浪','沢']),
+q(233,'笑','わらう','冗談を言って皆で{}。','笑いました',['笠いました','符いました','策いました']),
+q(234,'調','しらべる','言葉を辞書で{}。','調べる',['詞べる','諮べる','綢べる']),
+q(235,'査','ちょうさ','アンケート{}を行います。','調査',['調杳','調杏','調香']),
+q(236,'移','いどう','次の教室に{}します。','移動',['称動','秒動','穫動']),
+q(237,'難','むずかしい','この問題は{}です。','難しい',['漢しい','嘆しい','歎しい']),
+q(238,'簡','かんたん','この料理は{}に作れます。','簡単',['管単','箇単','筒単']),
+q(239,'単','たんご','毎日、{}を覚えます。','単語',['巣語','弾語','戦語']),
+q(240,'感','かんどう','その話に{}しました。','感動',['惑動','憾動','減動']),
+q(241,'想','かんそう','本の{}を書きます。','感想',['感相','感箱','感霜']),
+q(242,'練','れんしゅう','毎日、漢字を{}します。','練習',['錬習','煉習','棟習']),
+q(243,'最','さいしょ','{}に自己紹介をします。','最初',['量初','撮初','替初']),
+q(244,'適','てきとう','{}な言葉を選びます。','適当',['敵当','摘当','滴当']),
+q(245,'選','えらぶ','好きな色を{}ください。','選んで',['遷んで','巽んで','撰んで']),
+q(246,'違','ちがう','答えが{}います。','違って',['偉って','緯って','衛って']),
+q(247,'直','ちょくせつ','{}、本人に聞きます。','直接',['真接','値接','植接']),
+q(248,'復','ふくしゅう','家で授業の{}をします。','復習',['複習','腹習','覆習']),
+q(249,'辞','じしょ','{}で意味を調べます。','辞書',['辛書','乱書','辨書']),
+q(250,'宿','しゅくだい','{}を忘れました。','宿題',['縮題','粛題','宗題']),
+q(251,'昨','さくねん','{}、日本に来ました。','昨年',['作年','咋年','酢年']),
+q(252,'君','きみ','{}の意見を聞きたいです。','君',['郡','群','裙']),
+q(253,'結','むすぶ','くつのひもを{}。','結びます',['詰びます','絡びます','締びます']),
+q(254,'婚','けっこん','来年、{}します。','結婚',['結昏','結混','結姫']),
+q(255,'祝','しゅくじつ','明日は{}です。','祝日',['税日','神日','祈日']),
+q(256,'曲','きょく','好きな{}を聞きます。','曲',['田','由','曹']),
+q(257,'奥','おくさん','田中さんの{}は先生です。','奥さん',['興さん','輿さん','粤さん']),
+q(258,'寝','ねる','昨日は早く{}。','寝ました',['侵ました','浸ました','寧ました']),
+q(259,'痛','いたい','歯が{}です。','痛い',['病い','痘い','疾い']),
+q(260,'熱','ねつ','{}が出て会社を休みました。','熱',['熟','勢','熊']),
+q(261,'虫','むし','部屋に{}が入りました。','虫',['串','申','蚊']),
+q(262,'歯','はいしゃ','歯が痛いので{}に行きます。','歯医者',['菌医者','曲医者','歳医者']),
+q(263,'治','ちりょう','歯の{}を受けます。','治療',['冶療','始療','怡療']),
+q(264,'汚','きたない','手が{}ので洗います。','汚い',['汗い','汁い','汀い']),
+q(265,'並','ならぶ','バス停に人が{}います。','並んで',['普んで','亜んで','唖んで']),
+q(266,'他','ほか','{}の店も見てみます。','他',['地','池','施']),
+q(267,'身','しんちょう','{}は百七十センチです。','身長',['射長','躯長','躬長']),
+q(268,'酒','にほんしゅ','{}は米から作ります。','日本酒',['日本洒','日本酉','日本泗']),
+q(269,'吸','こきゅう','深く{}してください。','呼吸',['呼級','呼汲','呼扱']),
+q(270,'欲','しょくよく','夏は{}がなくなります。','食欲',['食欠','食歌','食歓']),
+q(271,'眠','ねむい','昨日よく寝たのに{}です。','眠い',['眼い','眺い','睡い']),
+q(272,'疲','つかれる','たくさん歩いて{}。','疲れました',['披れました','彼れました','被れました']),
+q(273,'息','むすこ','{}は今、高校生です。','息子',['恩子','憩子','思子']),
+q(274,'呼','よぶ','タクシーを{}ください。','呼んで',['評んで','坪んで','平んで']),
+q(281,'報','よほう','天気{}を見ます。','予報',['予服','予執','予撮']),
+q(282,'晴','はれる','明日は{}でしょう。','晴れる',['清れる','精れる','情れる']),
+q(283,'雲','くも','空に黒い{}が広がっています。','雲',['雪','雷','電']),
+q(284,'吹','ふく','強い風が{}います。','吹いて',['炊いて','欧いて','欣いて']),
+q(285,'暖','あたたかい','春になって{}なりました。','暖かく',['緩かく','媛かく','援かく']),
+q(286,'雪','ゆき','北の地方では{}が降ります。','雪',['雲','雰','霜']),
+q(287,'震','じしん','昨夜、大きな{}がありました。','地震',['地霜','地需','地霧']),
+q(288,'波','なみ','今日は海の{}が高いです。','波',['破','派','婆']),
+q(289,'求','きゅうじん','新聞の{}広告を見ます。','求人',['救人','球人','詠人']),
+q(290,'募','ぼしゅう','アルバイトを{}しています。','募集',['墓集','慕集','暮集']),
+q(291,'職','しょくば','私の{}は駅の近くです。','職場',['識場','織場','幟場']),
+q(292,'容','ないよう','メールの{}を確認します。','内容',['内客','内谷','内溶']),
+q(293,'技','ぎじゅつ','新しい{}を学びます。','技術',['枝術','岐術','伎術']),
+q(294,'般','いっぱん','{}の人も参加できます。','一般',['一船','一舶','一盤']),
+q(295,'務','じむ','会社で{}の仕事をしています。','事務',['事努','事霧','事勝']),
+q(296,'課','かちょう','この件は{}に相談します。','課長',['誤長','諾長','調長']),
+q(297,'球','やきゅう','週末に{}の試合を見ます。','野球',['野救','野求','野泳']),
+q(298,'決','きめる','旅行の日を{}。','決めます',['快めます','訣めます','抉めます']),
+q(299,'勝','かつ','大事な試合に{}ました。','勝ち',['騰ち','謄ち','藤ち']),
+q(300,'対','はんたい','その意見に{}です。','反対',['反封','反討','反紂']),
+q(301,'流','ながれる','川がゆっくり{}います。','流れて',['疏れて','琉れて','硫れて']),
+q(302,'負','まける','試合に{}悔しいです。','負けて',['貝けて','員けて','貧けて']),
+q(303,'投','なげる','ボールを遠くへ{}。','投げます',['役げます','没げます','扮げます']),
+q(304,'果','けっか','試験の{}が出ました。','結果',['結菓','結課','結巣']),
+q(305,'戦','せんそう','{}のない世界を願います。','戦争',['単争','弾争','戟争']),
+q(306,'経','けいけん','留学でいい{}をしました。','経験',['径験','軽験','茎験']),
+q(307,'済','けいざい','大学で{}を勉強します。','経済',['経斉','経剤','経渚']),
+q(308,'成','せいちょう','子どもの{}は早いです。','成長',['城長','盛長','誠長']),
+q(309,'貿','ぼうえき','{}の仕事をしています。','貿易',['貨易','賀易','貼易']),
+q(310,'易','やさしい','この問題はとても{}です。','易しい',['湯しい','陽しい','揚しい']),
+q(311,'輸','ゆしゅつ','この国は車を海外に{}します。','輸出',['輪出','輩出','輻出']),
+q(312,'相','そうだん','困ったとき、先生に{}します。','相談',['想談','箱談','霜談']),
+q(313,'化','ぶんか','日本の{}に興味があります。','文化',['文花','文貨','文他']),
+q(314,'比','くらべる','二つの品物を{}。','比べる',['北べる','此べる','叱べる']),
+q(315,'原','げんりょう','この製品の{}は米です。','原料',['源料','願料','厩料']),
+q(316,'因','げんいん','事故の{}を調べます。','原因',['原困','原団','原囚']),
+q(317,'際','こくさい','{}会議に出席します。','国際',['国祭','国察','国擦']),
+q(318,'議','かいぎ','午後から{}があります。','会議',['会義','会儀','会犠']),
+q(319,'活','せいかつ','日本での{}に慣れました。','生活',['生括','生話','生舌']),
+q(320,'変','たいへん','昨日は{}な一日でした。','大変',['大恋','大蛮','大湾']),
+q(321,'政','せいじ','{}のニュースに関心があります。','政治',['攻治','故治','敢治']),
+q(322,'府','せいふ','{}が新しい政策を発表しました。','政府',['政符','政附','政腐']),
+q(323,'改','かいせい','法律が{}されました。','改正',['攻正','政正','故正']),
+q(324,'否','ひてい','彼はうわさを{}しました。','否定',['杏定','吝定','呑定']),
+q(325,'的','もくてき','旅行の{}は何ですか。','目的',['目約','目酌','目釣']),
+q(326,'実','じっけん','理科の{}をします。','実験',['宝験','宗験','審験']),
+q(327,'欠','けってん','誰にでも{}があります。','欠点',['次点','歌点','欧点']),
+q(328,'専','せんもん','大学での{}は経済です。','専門',['博門','敷門','団門']),
+];
+
+/* ===== 実戦問題（7日目テスト）データ ===== */
+function X(t,s,ch,a){return{t:t,s:s,choices:ch,answer:a};}
+const EXAMS=[
+{title:'第1週 実戦問題', qs:[
+X('r','「<u>飛び出し</u>注意」と書いてあります。',['よびだしちゅうい','とびだしちゅうい','とびだしじゅうい','よびだしじゅうい'],1),
+X('r','この時計は<u>正確</u>です。',['せいかく','せっかく','しょうかく','しょうがく'],0),
+X('r','<u>横断</u>歩道をわたりましょう。',['こうだん','おうだん','きんだん','そうだん'],1),
+X('r','このなべは<u>鉄</u>で作られています。',['しつ','ねつ','れつ','てつ'],3),
+X('r','<u>優先席</u>ではけいたい電話を使わないでください。',['うせん','にゅうせん','ゆうせん','よやく'],2),
+X('r','料金は<u>降りる</u>ときにはらってください。',['のりる','ふりる','こりる','おりる'],3),
+X('r','<u>関係者</u>以外入らないでください。',['かんけいしゃ','かんれんしゃ','けいけんしゃ','かんきょうしゃ'],0),
+X('r','<u>確認</u>ボタンを押します。',['せきにん','かくにん','しょうにん','こうにん'],1),
+X('r','ドアの<u>横</u>にスイッチがあります。',['そば','よこ','たて','となり'],1),
+X('r','高速道路から<u>飛行場</u>が見えます。',['こうくう','ひこうば','くうこう','ひこうじょう'],3),
+X('k','席は<u>なんばん</u>ですか。',['何号','向番','何番','向号'],2),
+X('k','黄色い<u>せん</u>まで下がってお待ちください。',['線','信','段','側'],0),
+X('k','あの女優は<u>ひょうげん</u>力がある。',['表信','表見','表言','表現'],3),
+X('k','社長はまちがいを<u>みとめた</u>。',['定めた','認めた','窓めた','面めた'],1),
+X('f','この電車は（　）駅に止まります。',['毎','次','各','両'],2),
+X('f','あの信号は押しボタン（　）です。',['箱','席','向','式'],3),
+X('f','駐車場はただいま（　）車です。',['両','満','禁','非'],1),
+X('f','一万円以上は、送料（　）料です。',['非','不','無','禁'],2),
+X('f','整理（　）を取ってお待ちください。',['停','箱','路','券'],3),
+X('f','お金は料金（　）に入れてください。',['箱','式','側','券'],0),
+]},
+{title:'第2週 実戦問題', qs:[
+X('r','ご<u>協力</u>ありがとうございます。',['きゅうりょく','きょうりょく','こうりょく','こうりゃく'],1),
+X('r','日本語がわからなくて<u>困って</u>います。',['くまって','こまって','よわって','まいって'],1),
+X('r','<u>手伝って</u>くれませんか。',['たすけって','てつだって','ことづかって','つたえって'],1),
+X('r','<u>美術館</u>に絵を見に行きました。',['ぶじゅつかん','ぎじゅつかん','びじゅつかん','しゅじゅつかん'],2),
+X('r','<u>空港</u>は空の港です。',['くうこう','くうきょう','こうきょう','こうこう'],0),
+X('r','京都に金閣<u>寺</u>という有名なお寺があります。',['じ','ぎ','に','ち'],0),
+X('r','地震に<u>備えて</u>いろいろなことをしています。',['むかえて','そろえて','おさえて','そなえて'],3),
+X('r','インフルエンザを<u>予防</u>する。',['ゆうぼう','ようぼう','ゆぼう','よぼう'],3),
+X('r','消しゴムを<u>貸して</u>くれませんか。',['きして','けして','かして','さして'],2),
+X('r','危ないですから、黄色い線の<u>内側</u>に下がってお待ちください。',['うちがわ','ないがわ','そとがわ','うしがわ'],0),
+X('k','友達を助けるのは<u>あたりまえ</u>のことです。',['光たり前','当たり前','満たり前','面たり前'],1),
+X('k','富士山の<u>かたち</u>は美しい。',['形','骨','様','煙'],0),
+X('k','ただ今、<u>じゅんびちゅう</u>です。',['予約中','営業中','閉店中','準備中'],3),
+X('k','さいふをひろったので、<u>けいさつ</u>にとどけます。',['交番','消防','警察','観光'],2),
+X('f','（　）駅では禁煙となっております。',['本','今','御','当'],3),
+X('f','この電車は（　）席、指定です。',['満','空','全','次'],2),
+X('f','交差点（　）に車を止めてはいけません。',['向','側','線','内'],3),
+X('f','産婦人（　）の受付をする。',['科','化','係','局'],0),
+X('f','私はＡ（　）に賛成です。',['番','券','案','段'],2),
+X('f','この町の人口は（　）二十万人です。',['各','現','過','約'],3),
+]},
+{title:'第3週 実戦問題', qs:[
+X('r','自動<u>販売</u>機で飲み物を買う。',['はんばい','へんばい','はんまい','へんまい'],0),
+X('r','なるべく早く<u>お召し上がり</u>ください。',['おみしあがり','おねしあがり','おめしあがり','おむしあがり'],2),
+X('r','日本語の<u>教材</u>をさがす。',['きょうざい','きゅうざい','きょうぜい','きゅうぜい'],0),
+X('r','そこに<u>粉</u>を入れて混ぜます。',['すな','こめ','むぎ','こな'],3),
+X('r','おべんとうに<u>卵焼き</u>が入っている。',['たなごやき','たまごまき','たなごまき','たまごやき'],3),
+X('r','交通ルールを<u>守り</u>ましょう。',['なもりましょう','まもりましょう','もまりましょう','もなりましょう'],1),
+X('r','<u>数</u>を数えてください。',['かぞ','くず','かず','しゅう'],2),
+X('r','お<u>湯</u>を入れて、三分待てば、できあがりです。',['ゆ','よ','や','い'],0),
+X('r','録音された伝言を<u>再生</u>する。',['せいしょう','さいせい','せいせい','さいしょう'],1),
+X('r','<u>冷房</u>が強すぎます。',['れいぼう','れいぞう','れいとう','れいどう'],0),
+X('k','図書館に本を<u>かえす</u>。',['辺す','帰す','替す','返す'],3),
+X('k','ボクサーは試合前に<u>げんりょう</u>する。',['減量','消量','増量','限量'],0),
+X('k','使い終わったら、もとの場所に<u>もどして</u>ください。',['直して','返して','存して','戻して'],3),
+X('k','今日はここまで。<u>つづき</u>はまた来週。',['付き','続き','向き','次き'],1),
+X('f','交通（　）はいくらですか。',['金','代','料','費'],3),
+X('f','この資料を三十（　）コピーしてください。',['束','部','組','点'],1),
+X('f','紙（　）にお入れしましょうか。',['袋','庫','材','製'],0),
+X('f','（　）冷凍と書いてあります。',['必','限','要','保'],2),
+X('f','（　）ダイヤルボタンを押す。',['濃','再','薄','伝'],1),
+X('f','短（　）留学をする。',['機','気','期','式'],2),
+]},
+{title:'第4週 実戦問題', qs:[
+X('r','<u>合格</u>の知らせによろこんだ。',['ごかく','あいきゃく','ごうかく','こうかく'],2),
+X('r','代金は銀行から<u>振り込み</u>ます。',['はりこみ','おりこみ','ふりこみ','ほりこみ'],2),
+X('r','田中と<u>申します</u>。',['もよおします','もおします','まうします','もうします'],3),
+X('r','<u>中級</u>レベルの日本語の本をさがしています。',['ちゅうきゅう','ちょうきゅう','じょうきゅう','しょうきゅう'],0),
+X('r','<u>米国</u>に留学する。',['まいこく','めいこく','べいこく','みいこく'],2),
+X('r','携帯電話は<u>便利</u>です。',['びんり','べんり','ばんり','べんに'],1),
+X('r','品物が<u>入荷</u>したら、お知らせします。',['にゅうこ','にゅうに','にゅうこう','にゅうか'],3),
+X('r','白い<u>砂</u>の上を歩きました。',['しお','いし','たね','すな'],3),
+X('r','<u>紅茶</u>にミルクを入れて飲む。',['こうさ','ほんちゃ','こうちゃ','きっさ'],2),
+X('r','<u>支社</u>に書類を郵送する。',['ししゃ','ちしゃ','じしゃ','ぎしゃ'],0),
+X('k','バスの料金を<u>はらう</u>。',['去う','私う','仏う','払う'],3),
+X('k','<u>たくはい</u>で送る。',['配達','宅配','心配','速達'],1),
+X('k','子どもを両親に<u>あずける</u>。',['届ける','受ける','預ける','続ける'],2),
+X('k','このへんは<u>みどり</u>が少ない。',['縁','録','緑','線'],2),
+X('f','（　）休は旅行に行く予定だ。',['連','次','来','残'],0),
+X('f','広（　）でセールを知る。',['告','例','記','込'],0),
+X('f','定（　）の半額以下で買った。',['割','値','価','達'],2),
+X('f','消費（　）は何パーセントですか。',['税','性','歳','額'],0),
+X('f','ＣＤを何（　）持っていますか。',['冊','枚','本','部'],1),
+X('f','大（　）トラックが事故を起こした。',['形','倍','型','級'],2),
+]},
+{title:'第5週 実戦問題', qs:[
+X('r','結婚式に出られなくて<u>残念</u>です。',['だんねん','きねん','ざんねん','むねん'],2),
+X('r','写真をとりますよ。<u>笑って</u>。',['あらって','いわって','はらって','わらって'],3),
+X('r','車をあちらに<u>移動</u>させてください。',['じどう','ほどう','いどう','たどう'],2),
+X('r','お返事が<u>遅れて</u>、すみません。',['おくれて','おそれて','あきれて','つかれて'],0),
+X('r','山田君は会社を<u>辞めた</u>そうです。',['なめた','とめた','ほめた','やめた'],3),
+X('r','くつのひもを<u>結ぶ</u>。',['むすぶ','もすぶ','みすぶ','ゆすぶ'],0),
+X('r','おじいさんは山の<u>奥</u>に住んでいます。',['そく','ろく','おく','まく'],2),
+X('r','<u>政治</u>の話は難しい。',['せいじ','せいち','しょうち','しょうじ'],0),
+X('r','<u>息子</u>から手紙が来た。',['むつこ','もすこ','むすこ','もつこ'],2),
+X('r','<u>日本酒</u>は米からできています。',['にほんちょ','にほんちゅ','にほんじゅ','にほんしゅ'],3),
+X('k','<u>おれい</u>のはがきを書いた。',['お礼','お札','お机','お杯'],0),
+X('k','いつ<u>うかがえば</u>よろしいでしょうか。',['司えば','伺えば','何えば','向えば'],1),
+X('k','ことばの意味を<u>しらべる</u>。',['呼べる','並べる','選べる','調べる'],3),
+X('k','タオルで<u>あせ</u>をふく。',['息','汗','涙','汁'],1),
+X('f','まず（　）初に材料を細かく切ります。',['再','先','際','最'],3),
+X('f','天気は回（　）に向かっています。',['服','復','福','腹'],1),
+X('f','（　）年はたいへんお世話になりました。',['次','毎','各','昨'],3),
+X('f','会社へ戻らずに（　）接、帰宅します。',['直','間','真','正'],0),
+X('f','頭（　）薬を買う。',['通','痛','病','療'],1),
+X('f','食（　）がない。',['色','浴','気','欲'],3),
+]},
+{title:'第6週 実戦問題', qs:[
+X('r','週末は全国的に<u>晴れる</u>でしょう。',['ばれる','てれる','はれる','なれる'],2),
+X('r','これは日本で<u>一般</u>に売られている食品です。',['いっせん','いっそう','いっせい','いっぱん'],3),
+X('r','これはなんという<u>果物</u>ですか。',['けだもの','くだもの','こだもの','こなもの'],1),
+X('r','私たちのチームは強いチームと<u>戦って</u>勝ちました。',['かたかって','たかたって','かかたって','たたかって'],3),
+X('r','<u>国際会議</u>に出席する。',['こくせいかいに','こくさいかいぎ','こくさいかいに','こくせいかいぎ'],1),
+X('r','大学で<u>政治経済</u>を学ぶ。',['せいちけいざい','せいじけいざい','せいちけいさい','せいじけいさい'],1),
+X('r','寒さに<u>負けないで</u>がんばろう。',['なさけないで','もけないで','なまけないで','まけないで'],3),
+X('r','<u>原料</u>を輸入する。',['ひりょう','ねんりょう','げんりょう','こうりょう'],2),
+X('r','車の窓からごみを<u>投げ捨て</u>ないでください。',['なげすて','まげすて','なげつて','まげつて'],0),
+X('r','宿題を<u>済ませて</u>から、テレビを見ます。',['からませて','さませて','おわませて','すませて'],3),
+X('k','<u>じっけん</u>結果を報告する。',['事件','実験','試験','条件'],1),
+X('k','<u>せんもんか</u>に意見を聞く。',['専門家','専問家','千聞家','千文家'],0),
+X('k','地球<u>おんだんか</u>について話し合う。',['温段化','音暖化','温暖化','音断化'],2),
+X('k','明日は北風が<u>ふいて</u>寒くなるでしょう。',['吸いて','吹いて','欠いて','比いて'],1),
+X('f','次の試験は第10（　）までです。',['部','課','問','科'],1),
+X('f','工場は機械（　）された。',['比','的','性','化'],3),
+X('f','個人（　）な理由で、会社を辞めました。',['上','因','的','内'],2),
+X('f','ラジオで天気予（　）を聞く。',['想','報','定','防'],1),
+X('f','首相はニュースの内容を（　）定した。',['否','内','無','正'],0),
+X('f','電話の相手は電（　）の届かない所にいるようだ。',['池','車','信','波'],3),
+]},
+];
+
+let currentTab=0,currentWeek=0,TABS=[],deck=[],idx=0,flipped=false,reviewMode=false;
+
+function isStar(k){return localStorage.getItem('star:'+k)==='1';}
+function setStar(k,v){v?localStorage.setItem('star:'+k,'1'):localStorage.removeItem('star:'+k);}
+function allCards(){return[...L1,...L2,...L3,...L4,...L5,...L6,...L7,...L8,...L9,...L10,...L11,...L12,...L13,...L14,...L15,...L16,...L17,...L18,...L19,...L20,...L21,...L22,...L23,...L24,...L25,...L26,...L27,...L28,...L29,...L30,...L31,...L32,...L33,...L34,...L35,...L36];}
+
+function weekAll(w){var a=[];WEEKS[w].days.forEach(function(d){a=a.concat(d.data);});return a;}
+var STAR_TAB={label:'★ 一覧',data:'star',isStar:true};
+function buildWeekTabs(w){return WEEKS[w].days.concat([{label:'7日目\n実戦問題',data:weekAll(w),isExam:true,examIdx:w},{label:'全部\nこの週',data:weekAll(w)},STAR_TAB]);}
+function buildWeekBar(){
+  var bar=document.getElementById('weekBar');bar.innerHTML='';
+  WEEKS.forEach(function(wk,w){
+    var el=document.createElement('div');
+    el.className='week-btn'+(w===currentWeek?' active':'');
+    el.innerHTML=wk.label.replace('\n','<br>');
+    el.onclick=function(){selectWeek(w);};
+    bar.appendChild(el);
+  });
+}
+function selectWeek(w){currentWeek=w;TABS=buildWeekTabs(w);currentTab=0;buildWeekBar();selectTab(0);}
+
+function buildTabs(){
+  const bar=document.getElementById('tabBar');
+  bar.innerHTML='';
+  TABS.forEach(function(t,i){
+    const el=document.createElement('div');
+    el.className='tab'+(t.isStar?' star-tab':'')+(i===currentTab?' active':'');
+    el.innerHTML=t.label.replace('\n','<br>');
+    el.onclick=function(){selectTab(i);};
+    bar.appendChild(el);
+  });
+}
+
+function selectTab(i){
+  currentTab=i;reviewMode=false;buildTabs();
+  const t=TABS[i];
+  if(t.isStar){
+    document.getElementById('cardView').style.display='none';
+    document.getElementById('starView').style.display='block';
+    renderStarView();return;
+  }
+  document.getElementById('cardView').style.display='block';
+  document.getElementById('starView').style.display='none';
+  deck=t.data===null?allCards():t.data.slice();
+  idx=0;render();
+}
+
+function render(){
+  if(!deck.length)return;
+  var cd=deck[idx];
+  flipped=false;
+  document.getElementById('card').classList.remove('flipped');
+  document.getElementById('progress').textContent=(idx+1)+' / '+deck.length;
+  document.getElementById('progressFill').style.width=((idx+1)/deck.length*100)+'%';
+  document.getElementById('groupLabel').textContent=reviewMode?('★ 復習モード｜'+cd.g):cd.g;
+  document.getElementById('kanjiDisp').textContent=cd.kanji;
+  var fr=document.getElementById('front');
+  var bd=fr.querySelector('.star-badge');
+  if(!bd){bd=document.createElement('div');bd.className='star-badge';fr.appendChild(bd);}
+  bd.textContent=isStar(cd.kanji)?'★':'';
+  var sb=document.getElementById('starBtn');
+  sb.textContent=isStar(cd.kanji)?'★':'☆';
+  sb.className=isStar(cd.kanji)?'active':'';
+  var html='';
+  cd.R.forEach(function(rv){
+    html+='<div class="reading-block"><div class="reading-jp">'+rv.jp+'</div><div class="reading-rm">'+rv.rm+'</div></div>';
+  });
+  html+='<div class="meaning-label">Arti (Indonesia / Inggris)</div>';
+  cd.R.forEach(function(rv){
+    html+='<div class="meaning-id">'+rv.mid+'</div><div class="meaning-en">'+rv.men+'</div>';
+  });
+  html+='<hr class="divider">';
+  cd.E.forEach(function(ex){
+    html+='<div class="example">';
+    if(ex.tag)html+='<div class="ex-tag">'+ex.tag+'</div>';
+    html+='<div class="ex-jp">'+ex.jp+'</div><div class="ex-rm">'+ex.rm+'</div><div class="ex-id">'+ex.id+'</div></div>';
+  });
+  document.getElementById('back').innerHTML=html;
+}
+
+function renderStarView(){
+  var list=document.getElementById('starList');
+  var ns=document.getElementById('noStars');
+  var starred=allCards().filter(function(c){return isStar(c.kanji);});
+  if(!starred.length){list.innerHTML='';ns.style.display='block';return;}
+  ns.style.display='none';
+  var html='<button onclick="startReview()" style="width:100%;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;">★ をフラッシュカードで覚える（'+starred.length+'枚）</button>';
+  html+=starred.map(function(c){
+    return '<div class="star-item"><div><div class="star-item-kanji">'+c.kanji+'</div><div class="star-item-info">'+c.g+' ／ '+c.R.map(function(rv){return rv.jp;}).join('・')+'</div></div><button class="star-remove" onclick="removeStar(\''+c.kanji.replace(/'/g,"\\'")+'\')">&times;</button></div>';
+  }).join('');
+  list.innerHTML=html;
+}
+
+function startReview(){
+  var starred=allCards().filter(function(c){return isStar(c.kanji);});
+  if(!starred.length){alert('★をつけた漢字がありません。');return;}
+  reviewMode=true;
+  deck=starred;
+  idx=0;
+  flipped=false;
+  // 全タブのactive状態を解除
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+  document.getElementById('cardView').style.display='block';
+  document.getElementById('starView').style.display='none';
+  render();
+}
+
+function removeStar(k){setStar(k,false);renderStarView();}
+
+/* ===== スワイプ＆クリック処理 ===== */
+(function(){
+  var scene=document.getElementById('scene');
+  var startX=0,startY=0,startT=0,touched=false;
+  var SWIPE_THRESHOLD=50; // 50px以上で横スワイプと判定
+
+  function flip(){
+    flipped=!flipped;
+    document.getElementById('card').classList.toggle('flipped',flipped);
+  }
+
+  scene.addEventListener('touchstart',function(ev){
+    touched=true;
+    var t=ev.touches[0];
+    startX=t.clientX;startY=t.clientY;startT=Date.now();
+  },{passive:true});
+
+  scene.addEventListener('touchend',function(ev){
+    var t=ev.changedTouches[0];
+    var dx=t.clientX-startX;
+    var dy=t.clientY-startY;
+    if(Math.abs(dx)>SWIPE_THRESHOLD && Math.abs(dx)>Math.abs(dy)){
+      // 横スワイプと判定
+      ev.preventDefault();
+      if(!deck.length)return;
+      if(dx>0){
+        // 右スワイプ → 次へ
+        idx=(idx+1)%deck.length;render();
+      } else {
+        // 左スワイプ → 前へ
+        idx=(idx-1+deck.length)%deck.length;render();
+      }
+    } else {
+      // タップ判定 → フリップ
+      flip();
+    }
+  });
+
+  // タッチ未対応環境（PC等）のクリック動作
+  scene.addEventListener('click',function(ev){
+    if(touched){touched=false;return;} // touchendが先に発火している場合は無視
+    flip();
+  });
+})();
+document.getElementById('prevBtn').onclick=function(){idx=(idx-1+deck.length)%deck.length;render();};
+document.getElementById('nextBtn').onclick=function(){idx=(idx+1)%deck.length;render();};
+document.getElementById('shuffleBtn').onclick=function(){
+  for(var i=deck.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=deck[i];deck[i]=deck[j];deck[j]=t;}
+  idx=0;render();
+};
+document.getElementById('starBtn').onclick=function(){
+  if(!deck.length)return;
+  var k=deck[idx].kanji;
+  var wasStarred=isStar(k);
+  setStar(k,!wasStarred);
+  // 復習モード中で★を外した場合、そのカードをデッキから削除
+  if(reviewMode && wasStarred){
+    deck=deck.filter(function(c){return c.kanji!==k;});
+    if(deck.length===0){
+      reviewMode=false;
+      alert('全部覚えました！おめでとう！\nSemua sudah dihafalkan! Selamat!');
+      // ★一覧タブに戻る
+      var starTabIdx=TABS.findIndex(function(t){return t.isStar;});
+      selectTab(starTabIdx);
+      return;
+    }
+    if(idx>=deck.length)idx=0;
+    render();
+    return;
+  }
+  render();
+};
+document.getElementById('clearAllBtn').onclick=function(){
+  allCards().forEach(function(c){setStar(c.kanji,false);});renderStarView();
+};
+
+/* ============================================================
+   モード管理（flash / quiz / typing / result）
+   ============================================================ */
+let currentMode='flash';
+
+function setMode(mode){
+  if(TABS[currentTab]&&TABS[currentTab].isExam){return;}
+  currentMode=mode;
+  // モードボタンのactive切り替え
+  document.getElementById('modeFlashBtn').classList.toggle('active',mode==='flash');
+  document.getElementById('modeQuizBtn').classList.toggle('active',mode==='quiz');
+  document.getElementById('modeTypingBtn').classList.toggle('active',mode==='typing');
+  document.getElementById('modeKanjiBtn').classList.toggle('active',mode==='kanjichoice');
+  // 各ビューの表示切替
+  hideAllViews();
+  if(mode==='flash'){
+    // フラッシュカードモード：現在のタブに応じて cardView か starView
+    var t=TABS[currentTab];
+    if(t.isStar){document.getElementById('starView').style.display='block';renderStarView();}
+    else{document.getElementById('cardView').style.display='block';render();}
+  } else if(mode==='quiz'){
+    startQuiz();
+  } else if(mode==='typing'){
+    startTyping();
+  } else if(mode==='kanjichoice'){
+    startKanjiChoice();
+  }
+}
+
+function hideAllViews(){
+  document.getElementById('cardView').style.display='none';
+  document.getElementById('starView').style.display='none';
+  document.getElementById('quizView').style.display='none';
+  document.getElementById('typingView').style.display='none';
+  document.getElementById('kanjiChoiceView').style.display='none';
+  document.getElementById('resultView').style.display='none';
+  var _ev=document.getElementById('examView');if(_ev)_ev.style.display='none';
+  var _erv=document.getElementById('examResultView');if(_erv)_erv.style.display='none';
+}
+
+document.getElementById('modeFlashBtn').onclick=function(){setMode('flash');};
+document.getElementById('modeQuizBtn').onclick=function(){setMode('quiz');};
+document.getElementById('modeTypingBtn').onclick=function(){setMode('typing');};
+document.getElementById('modeKanjiBtn').onclick=function(){setMode('kanjichoice');};
+
+/* selectTabもクイズ・タイピングモード対応に拡張 */
+var _origSelectTab=selectTab;
+selectTab=function(i){
+  currentTab=i;reviewMode=false;buildTabs();
+  if(TABS[i].isExam){hideAllViews();startExam(TABS[i].examIdx);return;}
+  if(currentMode==='quiz'){startQuiz();return;}
+  if(currentMode==='typing'){startTyping();return;}
+  if(currentMode==='kanjichoice'){startKanjiChoice();return;}
+  // flashモード
+  const t=TABS[i];
+  hideAllViews();
+  if(t.isStar){
+    document.getElementById('starView').style.display='block';
+    renderStarView();return;
+  }
+  document.getElementById('cardView').style.display='block';
+  deck=t.data===null?allCards():t.data.slice();
+  idx=0;render();
+};
+
+/* ============================================================
+   クイズ用カードプール取得
+   ============================================================ */
+function getQuizPool(){
+  var t=TABS[currentTab];
+  if(t.isStar){
+    var starred=allCards().filter(function(c){return isStar(c.kanji);});
+    if(starred.length===0)return null; // ★が0
+    return starred;
+  }
+  if(t.data===null)return allCards();
+  return t.data.slice();
+}
+
+/* ============================================================
+   誘惑肢生成ロジック（5戦略）
+   ============================================================ */
+// ひらがなを「拍（モーラ）」に分解
+function splitMora(s){
+  var smalls='ゃゅょャュョ';
+  var moras=[];
+  for(var i=0;i<s.length;i++){
+    var ch=s[i];
+    if(i+1<s.length && smalls.indexOf(s[i+1])>=0){
+      moras.push(ch+s[i+1]);i++;
+    } else {
+      moras.push(ch);
+    }
+  }
+  return moras;
+}
+
+// 段グループ
+var MORA_GROUPS=[
+  // ア段
+  ['か','が','さ','ざ','た','だ','な','は','ば','ぱ','ま','ら','わ'],
+  // イ段
+  ['き','ぎ','し','じ','ち','ぢ','に','ひ','び','ぴ','み','り'],
+  // ウ段
+  ['く','ぐ','す','ず','つ','づ','ぬ','ふ','ぶ','ぷ','む','る'],
+  // エ段
+  ['け','げ','せ','ぜ','て','で','ね','へ','べ','ぺ','め','れ'],
+  // オ段
+  ['こ','ご','そ','ぞ','と','ど','の','ほ','ぼ','ぽ','も','ろ'],
+  // ヤ段（拗音）
+  ['きゃ','ぎゃ','しゃ','じゃ','ちゃ','にゃ','ひゃ','びゃ','ぴゃ','みゃ','りゃ'],
+  // ユ段
+  ['きゅ','ぎゅ','しゅ','じゅ','ちゅ','にゅ','ひゅ','びゅ','ぴゅ','みゅ','りゅ'],
+  // ヨ段
+  ['きょ','ぎょ','しょ','じょ','ちょ','にょ','ひょ','びょ','ぴょ','みょ','りょ'],
+];
+
+function findMoraGroup(m){
+  for(var i=0;i<MORA_GROUPS.length;i++){
+    if(MORA_GROUPS[i].indexOf(m)>=0)return MORA_GROUPS[i];
+  }
+  return null;
+}
+
+// 戦略2：1拍だけ変えた変形
+function generatePhonemeVariants(reading){
+  var variants=[];
+  var moras=splitMora(reading);
+  for(var i=0;i<moras.length;i++){
+    var group=findMoraGroup(moras[i]);
+    if(!group)continue;
+    for(var j=0;j<group.length;j++){
+      if(group[j]===moras[i])continue;
+      var newMoras=moras.slice();
+      newMoras[i]=group[j];
+      variants.push(newMoras.join(''));
+    }
+  }
+  return variants;
+}
+
+// 漢字（CJK統合漢字）の抽出
+function extractKanji(s){
+  var result=[];
+  for(var i=0;i<s.length;i++){
+    var code=s.charCodeAt(i);
+    if(code>=0x4E00 && code<=0x9FFF)result.push(s[i]);
+  }
+  return result;
+}
+
+// 戦略4：音的類似スコア
+function similarityScore(a,b){
+  var score=0;
+  if(a.length===b.length)score+=3;
+  else score-=Math.abs(a.length-b.length);
+  if(a.length>0 && b.length>0 && a[a.length-1]===b[b.length-1])score+=2;
+  if(a.length>0 && b.length>0 && a[0]===b[0])score+=1;
+  var minLen=Math.min(a.length,b.length);
+  for(var i=0;i<minLen;i++){if(a[i]===b[i])score+=1;}
+  return score;
+}
+
+// 配列をシャッフル
+function shuffleArr(arr){
+  var a=arr.slice();
+  for(var i=a.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=a[i];a[i]=a[j];a[j]=t;
+  }
+  return a;
+}
+
+// 4択誘惑肢を生成（正解の読みに近い3つ）
+function generateDistractors(correctCard, correctReading, allPool){
+  var distractors=[]; // { text, score }
+  var ALL=allCards();
+
+  // 同じカード内の他読み（正解と同じ jp 以外）
+  var sameCardOtherReadings=correctCard.R
+    .map(function(rv){return rv.jp;})
+    .filter(function(jp){return jp!==correctReading;});
+
+  // 戦略1：同じカードの別の読み
+  for(var i=0;i<sameCardOtherReadings.length && distractors.length<3;i++){
+    if(!hasDistractor(distractors,sameCardOtherReadings[i])){
+      distractors.push({text:sameCardOtherReadings[i],from:'s1'});
+    }
+  }
+
+  // 戦略2：音変形（最大2つ）
+  var phonemeVariants=shuffleArr(generatePhonemeVariants(correctReading));
+  var s2added=0;
+  for(var i=0;i<phonemeVariants.length && s2added<2 && distractors.length<3;i++){
+    var v=phonemeVariants[i];
+    if(v===correctReading)continue;
+    if(sameCardOtherReadings.indexOf(v)>=0)continue; // 別読みと一致する変形は除外
+    if(hasDistractor(distractors,v))continue;
+    distractors.push({text:v,from:'s2'});
+    s2added++;
+  }
+
+  // 戦略3：同じ漢字を含む他カードの読み
+  if(distractors.length<3){
+    var kanjiChars=extractKanji(correctCard.kanji);
+    var s3candidates=[];
+    if(kanjiChars.length>0){
+      for(var i=0;i<ALL.length;i++){
+        var c=ALL[i];
+        if(c===correctCard)continue;
+        var hasShared=false;
+        for(var k=0;k<kanjiChars.length;k++){
+          if(c.kanji.indexOf(kanjiChars[k])>=0){hasShared=true;break;}
+        }
+        if(!hasShared)continue;
+        for(var ri=0;ri<c.R.length;ri++){
+          var jp=c.R[ri].jp;
+          if(jp===correctReading)continue;
+          if(hasDistractor(distractors,jp))continue;
+          // スコア=共有漢字数
+          var sharedCount=0;
+          for(var k=0;k<kanjiChars.length;k++){
+            if(c.kanji.indexOf(kanjiChars[k])>=0)sharedCount++;
+          }
+          s3candidates.push({text:jp,score:sharedCount});
+        }
+      }
+      // スコア順、同点内シャッフル
+      s3candidates.sort(function(a,b){return b.score-a.score;});
+      // 同点グループでシャッフル
+      var grouped={};
+      s3candidates.forEach(function(c){
+        if(!grouped[c.score])grouped[c.score]=[];
+        grouped[c.score].push(c);
+      });
+      var sortedScores=Object.keys(grouped).sort(function(a,b){return b-a;});
+      var s3final=[];
+      sortedScores.forEach(function(s){s3final=s3final.concat(shuffleArr(grouped[s]));});
+      for(var i=0;i<s3final.length && distractors.length<3;i++){
+        if(!hasDistractor(distractors,s3final[i].text)){
+          distractors.push({text:s3final[i].text,from:'s3'});
+        }
+      }
+    }
+  }
+
+  // 戦略2残り
+  for(var i=0;i<phonemeVariants.length && distractors.length<3;i++){
+    var v=phonemeVariants[i];
+    if(v===correctReading)continue;
+    if(sameCardOtherReadings.indexOf(v)>=0)continue;
+    if(hasDistractor(distractors,v))continue;
+    distractors.push({text:v,from:'s2b'});
+  }
+
+  // 戦略4：音的類似
+  if(distractors.length<3){
+    var s4candidates=[];
+    for(var i=0;i<ALL.length;i++){
+      var c=ALL[i];
+      if(c===correctCard)continue;
+      for(var ri=0;ri<c.R.length;ri++){
+        var jp=c.R[ri].jp;
+        if(jp===correctReading)continue;
+        if(hasDistractor(distractors,jp))continue;
+        s4candidates.push({text:jp,score:similarityScore(jp,correctReading)});
+      }
+    }
+    s4candidates.sort(function(a,b){return b.score-a.score;});
+    var grouped={};
+    s4candidates.forEach(function(c){
+      var k=String(c.score);
+      if(!grouped[k])grouped[k]=[];
+      grouped[k].push(c);
+    });
+    var sortedScores=Object.keys(grouped).sort(function(a,b){return Number(b)-Number(a);});
+    var s4final=[];
+    sortedScores.forEach(function(s){s4final=s4final.concat(shuffleArr(grouped[s]));});
+    for(var i=0;i<s4final.length && distractors.length<3;i++){
+      if(!hasDistractor(distractors,s4final[i].text)){
+        distractors.push({text:s4final[i].text,from:'s4'});
+      }
+    }
+  }
+
+  // 戦略5：ランダムフォールバック
+  if(distractors.length<3){
+    var allReadings=[];
+    ALL.forEach(function(c){c.R.forEach(function(rv){allReadings.push(rv.jp);});});
+    var shuffled=shuffleArr(allReadings);
+    for(var i=0;i<shuffled.length && distractors.length<3;i++){
+      if(shuffled[i]===correctReading)continue;
+      if(hasDistractor(distractors,shuffled[i]))continue;
+      distractors.push({text:shuffled[i],from:'s5'});
+    }
+  }
+
+  return distractors.slice(0,3).map(function(d){return d.text;});
+}
+
+function hasDistractor(arr,text){
+  return arr.some(function(d){return d.text===text;});
+}
+
+/* ============================================================
+   4択クイズモード
+   ============================================================ */
+let quizQuestions=[]; // 各問題のカード一覧
+let quizIdx=0;
+let quizCorrectCount=0;
+let quizWrongCards=[]; // 間違えたカード
+let quizCurrentReading=''; // 今の問題の正解読み
+let quizLocked=false; // 解答後ロック（連打防止）
+
+function startQuiz(retryCards){
+  hideAllViews();
+  document.getElementById('quizView').style.display='block';
+  var pool;
+  if(retryCards){
+    pool=retryCards;
+  } else {
+    pool=getQuizPool();
+    if(!pool || pool.length===0){alert('★をつけた漢字がありません。');setMode('flash');return;}
+  }
+  quizQuestions=shuffleArr(pool);
+  quizIdx=0;
+  quizCorrectCount=0;
+  quizWrongCards=[];
+  quizLocked=false;
+  showQuizQuestion();
+}
+
+function showQuizQuestion(){
+  if(quizIdx>=quizQuestions.length){showResult('quiz');return;}
+  quizLocked=false;
+  var card=quizQuestions[quizIdx];
+  // 正解読みをランダムに選ぶ（複数読みのカード対応）
+  var correctReading=card.R[Math.floor(Math.random()*card.R.length)].jp;
+  quizCurrentReading=correctReading;
+
+  document.getElementById('quizProgress').textContent='問題 '+(quizIdx+1)+' / '+quizQuestions.length;
+  document.getElementById('quizProgressFill').style.width=((quizIdx+1)/quizQuestions.length*100)+'%';
+  document.getElementById('quizKanji').textContent=card.kanji;
+
+  // 誘惑肢生成
+  var distractors=generateDistractors(card,correctReading,quizQuestions);
+  var choices=shuffleArr([correctReading].concat(distractors));
+
+  var box=document.getElementById('quizChoices');
+  box.innerHTML='';
+  choices.forEach(function(choice,i){
+    var btn=document.createElement('button');
+    btn.className='quiz-choice';
+    btn.innerHTML='<span class="num">'+['①','②','③','④'][i]+'</span> '+choice;
+    btn.onclick=function(){handleQuizChoice(btn,choice,correctReading,card);};
+    box.appendChild(btn);
+  });
+}
+
+function handleQuizChoice(btn,choice,correct,card){
+  if(quizLocked)return;
+  quizLocked=true;
+  var isCorrect=(choice===correct);
+  var allBtns=document.querySelectorAll('.quiz-choice');
+  allBtns.forEach(function(b){b.disabled=true;});
+  if(isCorrect){
+    btn.classList.add('correct');
+    quizCorrectCount++;
+  } else {
+    btn.classList.add('wrong');
+    // 正解を強調
+    allBtns.forEach(function(b){
+      if(b.textContent.indexOf(correct)>=0)b.classList.add('correct');
+    });
+    // 間違えた漢字に★をつける（重複を避けて記録）
+    setStar(card.kanji,true);
+    if(!quizWrongCards.some(function(c){return c.kanji===card.kanji;})){
+      quizWrongCards.push(card);
+    }
+  }
+  // 自動で次へ
+  setTimeout(function(){
+    quizIdx++;
+    showQuizQuestion();
+  },isCorrect?800:1500);
+}
+
+/* ============================================================
+   漢字選びモード（文中のひらがなに合う漢字を4択から選ぶ）
+   ============================================================ */
+let kcQuestions=[],kcIdx=0,kcCorrectCount=0,kcWrongItems=[],kcLocked=false;
+const KC_PER_ROUND=20; // 1回の出題数（プールが多い場合はここからランダム抽出）
+
+function kcEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// 現在のタブに対応する漢字番号の問題プールを返す
+function getKanjiChoicePool(){
+  var t=TABS[currentTab];
+  if(t.isStar){
+    // ★がついた語の漢字番号を集める（語単位の★→漢字単位へ）
+    var starNums={};
+    allCards().forEach(function(c){if(isStar(c.kanji))starNums[parseInt(c.g,10)]=1;});
+    var pool=KANJI_CHOICE.filter(function(x){return starNums[x.num];});
+    return pool.length?pool:null;
+  }
+  if(t.data===null)return KANJI_CHOICE.slice();
+  var nums={};
+  t.data.forEach(function(c){nums[parseInt(c.g,10)]=1;});
+  return KANJI_CHOICE.filter(function(x){return nums[x.num];});
+}
+
+function startKanjiChoice(retryItems){
+  hideAllViews();
+  document.getElementById('kanjiChoiceView').style.display='block';
+  var pool;
+  if(retryItems){
+    pool=retryItems;
+  } else {
+    pool=getKanjiChoicePool();
+    if(!pool || pool.length===0){alert('★をつけた漢字がありません。');setMode('flash');return;}
+  }
+  kcQuestions=shuffleArr(pool);
+  if(!retryItems && kcQuestions.length>KC_PER_ROUND){
+    kcQuestions=kcQuestions.slice(0,KC_PER_ROUND); // 毎回ランダムに KC_PER_ROUND 問だけ出題
+  }
+  kcIdx=0;
+  kcCorrectCount=0;
+  kcWrongItems=[];
+  kcLocked=false;
+  showKanjiChoiceQuestion();
+}
+
+function showKanjiChoiceQuestion(){
+  if(kcIdx>=kcQuestions.length){showResult('kanjichoice');return;}
+  kcLocked=false;
+  var qd=kcQuestions[kcIdx];
+  document.getElementById('kcProgress').textContent='問題 '+(kcIdx+1)+' / '+kcQuestions.length;
+  document.getElementById('kcProgressFill').style.width=((kcIdx+1)/kcQuestions.length*100)+'%';
+  // 例文の空欄に「ひらがな（読み）」を下線つきで表示
+  var parts=qd.sentence.split('{}');
+  var html=kcEsc(parts[0])+'<span class="kc-blank">'+kcEsc(qd.reading)+'</span>'+kcEsc(parts[1]||'');
+  document.getElementById('kcSentence').innerHTML=html;
+  // 選択肢（正解＋ダミー3つ）をシャッフル
+  var choices=shuffleArr([qd.correct].concat(qd.distractors));
+  var box=document.getElementById('kcChoices');
+  box.innerHTML='';
+  choices.forEach(function(choice,i){
+    var btn=document.createElement('button');
+    btn.className='quiz-choice';
+    btn.innerHTML='<span class="num">'+['①','②','③','④'][i]+'</span> '+kcEsc(choice);
+    btn.onclick=function(){handleKanjiChoice(btn,choice,qd.correct,qd);};
+    box.appendChild(btn);
+  });
+}
+
+function handleKanjiChoice(btn,choice,correct,qd){
+  if(kcLocked)return;
+  kcLocked=true;
+  var isCorrect=(choice===correct);
+  var allBtns=document.querySelectorAll('#kcChoices .quiz-choice');
+  allBtns.forEach(function(b){b.disabled=true;});
+  if(isCorrect){
+    btn.classList.add('correct');
+    kcCorrectCount++;
+  } else {
+    btn.classList.add('wrong');
+    // 正解を強調
+    allBtns.forEach(function(b){
+      if(b.textContent.indexOf(correct)>=0)b.classList.add('correct');
+    });
+    // 間違えた語に★（フラッシュカードの★一覧と連動）
+    setStar(qd.word||qd.correct,true);
+    if(!kcWrongItems.some(function(x){return x.num===qd.num;})){
+      kcWrongItems.push(qd);
+    }
+  }
+  setTimeout(function(){
+    kcIdx++;
+    showKanjiChoiceQuestion();
+  },isCorrect?800:1500);
+}
+
+/* ============================================================
+   タイピングクイズモード
+   ============================================================ */
+let typingQuestions=[];
+let typingIdx=0;
+let typingCorrectCount=0;
+let typingWrongCards=[];
+let typingState='input'; // 'input' | 'judged'
+
+function startTyping(retryCards){
+  hideAllViews();
+  document.getElementById('typingView').style.display='block';
+  var pool;
+  if(retryCards){
+    pool=retryCards;
+  } else {
+    pool=getQuizPool();
+    if(!pool || pool.length===0){alert('★をつけた漢字がありません。');setMode('flash');return;}
+  }
+  typingQuestions=shuffleArr(pool);
+  typingIdx=0;
+  typingCorrectCount=0;
+  typingWrongCards=[];
+  showTypingQuestion();
+}
+
+function showTypingQuestion(){
+  if(typingIdx>=typingQuestions.length){showResult('typing');return;}
+  typingState='input';
+  var card=typingQuestions[typingIdx];
+  document.getElementById('typingProgress').textContent='問題 '+(typingIdx+1)+' / '+typingQuestions.length;
+  document.getElementById('typingProgressFill').style.width=((typingIdx+1)/typingQuestions.length*100)+'%';
+  document.getElementById('typingKanji').textContent=card.kanji;
+  var input=document.getElementById('typingInput');
+  input.value='';
+  input.disabled=false;
+  input.className='typing-input';
+  document.getElementById('typingResult').textContent='';
+  document.getElementById('typingResult').className='typing-result';
+  document.getElementById('typingHintBox').classList.remove('show');
+  document.getElementById('typingHintBox').innerHTML='';
+  document.getElementById('typingSubmit').textContent='答える';
+  setTimeout(function(){input.focus();},50);
+}
+
+// マクロン展開: ō → o*o（複数候補）
+function expandMacrons(s){
+  var variants=[s];
+  function replaceVariants(arr,from,toList){
+    var out=[];
+    arr.forEach(function(str){
+      if(str.indexOf(from)<0){out.push(str);return;}
+      toList.forEach(function(to){
+        out.push(str.split(from).join(to));
+      });
+    });
+    return out;
+  }
+  variants=replaceVariants(variants,'ō',['ou','oo']);
+  variants=replaceVariants(variants,'Ō',['ou','oo','Ou','Oo']);
+  variants=replaceVariants(variants,'ū',['uu']);
+  variants=replaceVariants(variants,'Ū',['uu','Uu']);
+  variants=replaceVariants(variants,'ē',['ee','ei']);
+  variants=replaceVariants(variants,'Ē',['ee','ei','Ee','Ei']);
+  variants=replaceVariants(variants,'ā',['aa']);
+  variants=replaceVariants(variants,'Ā',['aa','Aa']);
+  variants=replaceVariants(variants,'ī',['ii']);
+  variants=replaceVariants(variants,'Ī',['ii','Ii']);
+  // 重複除去
+  return Array.from(new Set(variants));
+}
+
+// ひらがなだけ抽出
+function extractHiragana(s){
+  var result='';
+  for(var i=0;i<s.length;i++){
+    var code=s.charCodeAt(i);
+    // ひらがな・カタカナ・長音符
+    if((code>=0x3040 && code<=0x309F)||(code>=0x30A0 && code<=0x30FF)||code===0x30FC){
+      result+=s[i];
+    }
+  }
+  return result;
+}
+
+function hiraganaVariants(s){
+  // スラッシュで分割
+  var parts=s.split(/[\/／]/);
+  var result=[];
+  parts.forEach(function(p){
+    var h=extractHiragana(p.trim());
+    if(h)result.push(h);
+  });
+  return result;
+}
+
+function romajiVariants(s){
+  var parts=s.split(/[\/／]/);
+  var result=[];
+  parts.forEach(function(p){
+    var clean=p.toLowerCase().trim().replace(/[^a-zōūēāī]/g,'');
+    var expanded=expandMacrons(clean);
+    expanded.forEach(function(v){
+      var pure=v.replace(/[^a-z]/g,'');
+      if(pure)result.push(pure);
+    });
+  });
+  return result;
+}
+
+function userInputRomajiVariants(s){
+  var clean=s.toLowerCase().trim().replace(/\s+/g,'');
+  var expanded=expandMacrons(clean);
+  return expanded.map(function(v){return v.replace(/[^a-z]/g,'');}).filter(function(v){return v;});
+}
+
+function checkTypingAnswer(input,card){
+  var norm=input.toLowerCase().trim().replace(/\s+/g,'');
+  if(!norm)return false;
+  var cardForms=new Set();
+  card.R.forEach(function(rv){
+    hiraganaVariants(rv.jp).forEach(function(v){cardForms.add(v);});
+    romajiVariants(rv.rm).forEach(function(v){cardForms.add(v);});
+  });
+  // ひらがな直接比較
+  if(cardForms.has(norm))return true;
+  // ローマ字変形比較
+  var userVariants=userInputRomajiVariants(input);
+  for(var i=0;i<userVariants.length;i++){
+    if(cardForms.has(userVariants[i]))return true;
+  }
+  return false;
+}
+
+function handleTypingSubmit(){
+  var card=typingQuestions[typingIdx];
+  var input=document.getElementById('typingInput');
+  var resultEl=document.getElementById('typingResult');
+  if(typingState==='input'){
+    var ok=checkTypingAnswer(input.value,card);
+    typingState='judged';
+    input.disabled=true;
+    if(ok){
+      input.classList.add('correct');
+      resultEl.className='typing-result ok';
+      resultEl.innerHTML='✅ 正解！<br><span style="font-size:12px;color:#888;">Enter で次へ</span>';
+      typingCorrectCount++;
+    } else {
+      input.classList.add('wrong');
+      resultEl.className='typing-result ng';
+      var corrects=card.R.map(function(rv){return rv.jp;}).join(' / ');
+      resultEl.innerHTML='❌ 不正解<br><span class="correct-answer">'+corrects+'</span><span style="font-size:12px;color:#888;">Enter で次へ</span>';
+      setStar(card.kanji,true);
+      if(!typingWrongCards.some(function(c){return c.kanji===card.kanji;})){
+        typingWrongCards.push(card);
+      }
+    }
+    document.getElementById('typingSubmit').textContent='次へ';
+  } else {
+    // 'judged' → 次へ
+    typingIdx++;
+    showTypingQuestion();
+  }
+}
+
+document.getElementById('typingSubmit').onclick=handleTypingSubmit;
+document.getElementById('typingInput').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){e.preventDefault();handleTypingSubmit();}
+});
+// 入力欄が disabled の状態（判定後）でも Enter で次へ進めるように document レベルで拾う
+// ただし入力欄自身からの Enter は上のリスナーが処理するので、ここでは除外する
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Enter')return;
+  // 入力欄からの Enter は上のリスナーで既に処理済み → 重複実行を防ぐ
+  if(e.target && e.target.id==='typingInput')return;
+  // タイピングモードで判定済み状態のときだけ反応
+  if(currentMode==='typing' && typingState==='judged'){
+    e.preventDefault();
+    handleTypingSubmit();
+  }
+});
+document.getElementById('typingHintBtn').onclick=function(){
+  var card=typingQuestions[typingIdx];
+  var box=document.getElementById('typingHintBox');
+  if(box.classList.contains('show')){
+    box.classList.remove('show');return;
+  }
+  var ex=card.E[0];
+  var html='<div class="hint-jp">'+ex.jp+'</div>';
+  html+='<div class="hint-rm">'+ex.rm+'</div>';
+  html+='<div class="hint-id">'+ex.id+'</div>';
+  box.innerHTML=html;
+  box.classList.add('show');
+};
+
+/* ============================================================
+   結果画面
+   ============================================================ */
+function showResult(mode){
+  hideAllViews();
+  document.getElementById('resultView').style.display='block';
+  var total,correct,wrongCards,title;
+  if(mode==='quiz'){
+    total=quizQuestions.length;correct=quizCorrectCount;
+    wrongCards=quizWrongCards;title='✅ 結果（4択クイズ）';
+  } else if(mode==='typing'){
+    total=typingQuestions.length;correct=typingCorrectCount;
+    wrongCards=typingWrongCards;title='⌨️ 結果（タイピング）';
+  } else {
+    total=kcQuestions.length;correct=kcCorrectCount;
+    wrongCards=kcWrongItems;title='✍️ 結果（漢字選び）';
+  }
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultScore').textContent=correct+' / '+total;
+  var rate=total>0?Math.round(correct/total*100):0;
+  document.getElementById('resultRate').textContent='正答率：'+rate+'%';
+
+  var wrongBox=document.getElementById('resultWrongBox');
+  if(wrongCards.length>0){
+    wrongBox.style.display='block';
+    var listHtml=wrongCards.map(function(c){
+      if(mode==='kanjichoice'){
+        return '<div class="result-wrong-item"><span class="k">'+c.correct+'</span><span class="r">（'+c.reading+'）</span></div>';
+      }
+      var readings=c.R.map(function(rv){return rv.jp;}).join('・');
+      return '<div class="result-wrong-item"><span class="k">'+c.kanji+'</span><span class="r">（'+readings+'）</span></div>';
+    }).join('');
+    document.getElementById('resultWrongList').innerHTML=listHtml;
+  } else {
+    wrongBox.style.display='none';
+  }
+
+  // ボタンの動作を mode に応じて再設定
+  document.getElementById('resultRetryBtn').onclick=function(){
+    if(mode==='quiz')startQuiz();
+    else if(mode==='typing')startTyping();
+    else startKanjiChoice();
+  };
+  document.getElementById('resultRetryWrongBtn').onclick=function(){
+    if(wrongCards.length===0){alert('間違えた漢字がありません。');return;}
+    if(mode==='quiz')startQuiz(wrongCards.slice());
+    else if(mode==='typing')startTyping(wrongCards.slice());
+    else startKanjiChoice(wrongCards.slice());
+  };
+  document.getElementById('resultMenuBtn').onclick=function(){setMode('flash');};
+}
+
+/* ===== パスワード ===== */
+(function(){
+  var PW='iikanji2026';
+  var KEY='kf_auth';
+  var screen=document.getElementById('pwScreen');
+  if(localStorage.getItem(KEY)==='1'){screen.style.display='none';return;}
+  var input=document.getElementById('pwInput');
+  var btn=document.getElementById('pwBtn');
+  var err=document.getElementById('pwError');
+  function tryLogin(){
+    if(input.value===PW){
+      localStorage.setItem(KEY,'1');
+      screen.style.display='none';
+    } else {
+      err.textContent='パスワードが違います';
+      input.value='';
+      input.focus();
+    }
+  }
+  btn.onclick=tryLogin;
+  input.addEventListener('keydown',function(e){if(e.key==='Enter')tryLogin();});
+})();
+
+/* ===== 実戦問題モード ===== */
+var EXAM_SEC={r:'問題1・読み方',k:'問題2・漢字',f:'問題3・（　）'};
+var EXAM_PROMPT={r:'下線の読み方は？',k:'下線を漢字で書くと？',f:'（　）に入る漢字は？'};
+let examQs=[],examI=0,examScore=0,examWrong=[],examLocked=false,examWeek=0;
+function startExam(w){
+  examWeek=w;examQs=EXAMS[w].qs.slice();examI=0;examScore=0;examWrong=[];examLocked=false;
+  ['modeFlashBtn','modeQuizBtn','modeTypingBtn','modeKanjiBtn'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('active');});
+  hideAllViews();
+  document.getElementById('examView').style.display='block';
+  renderExam();
+}
+function renderExam(){
+  var q=examQs[examI];examLocked=false;
+  document.getElementById('examProgress').textContent='第'+(examWeek+1)+'週｜'+(examI+1)+' / '+examQs.length;
+  document.getElementById('examFill').style.width=((examI+1)/examQs.length*100)+'%';
+  document.getElementById('examSec').textContent=EXAM_SEC[q.t];
+  document.getElementById('examSentence').innerHTML=q.s;
+  document.getElementById('examPrompt').textContent=EXAM_PROMPT[q.t];
+  var box=document.getElementById('examChoices');box.innerHTML='';
+  q.choices.forEach(function(ch,i){
+    var b=document.createElement('button');b.className='quiz-choice';
+    b.innerHTML='<span class="num">'+(i+1)+'</span>'+kcEsc(ch);
+    b.onclick=function(){answerExam(i,b);};
+    box.appendChild(b);
+  });
+}
+function answerExam(i,btn){
+  if(examLocked)return;examLocked=true;
+  var q=examQs[examI];
+  var btns=document.getElementById('examChoices').querySelectorAll('.quiz-choice');
+  btns.forEach(function(b){b.disabled=true;});
+  btns[q.answer].classList.add('correct');
+  if(i===q.answer){examScore++;}else{btn.classList.add('wrong');examWrong.push(q);}
+  setTimeout(function(){
+    examI++;
+    if(examI<examQs.length)renderExam();else finishExam();
+  }, i===q.answer?600:1050);
+}
+function finishExam(){
+  hideAllViews();
+  document.getElementById('examResultView').style.display='block';
+  var total=examQs.length;
+  document.getElementById('examScore').textContent=(examScore*5)+' / 100';
+  document.getElementById('examRate').textContent='正解 '+examScore+' / '+total+'（'+Math.round(examScore/total*100)+'%）';
+  var wb=document.getElementById('examWrongBox'),wl=document.getElementById('examWrongList');
+  if(examWrong.length){
+    wb.style.display='block';wl.innerHTML='';
+    examWrong.forEach(function(q){
+      var d=document.createElement('div');d.className='result-wrong-item';
+      d.innerHTML='<div class="ew-q">'+q.s+'</div><div class="r">正解：'+kcEsc(q.choices[q.answer])+'</div>';
+      wl.appendChild(d);
+    });
+  }else{wb.style.display='none';}
+}
+document.getElementById('examRetryBtn').onclick=function(){startExam(examWeek);};
+document.getElementById('examMenuBtn').onclick=function(){
+  currentMode='flash';
+  ['modeFlashBtn','modeQuizBtn','modeTypingBtn','modeKanjiBtn'].forEach(function(id,ix){document.getElementById(id).classList.toggle('active',ix===0);});
+  selectTab(0);
+};
+
+selectWeek(0);
+</script>
+</body>
+</html>
