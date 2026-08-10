@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>漢字フラッシュカード｜全6週 完全版</title>
 <style>
-:root{--brand:#185FA5;--star:#f5a623;--bg:#f5f4f0;}
+:root{--brand:#5AA377;--star:#f5a623;--bg:#f4f7f4;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;min-height:100vh;}
 header{background:var(--brand);color:#fff;text-align:center;padding:12px 16px 8px;}
@@ -39,7 +39,7 @@ header p{font-size:12px;opacity:.8;margin-top:2px;}
 .meaning-en{font-size:13px;color:#999;}
 .divider{border:none;border-top:1px solid #eee;margin:10px 0;}
 .example{margin-bottom:8px;}
-.ex-tag{display:inline-block;font-size:10px;background:#e8f0fb;color:var(--brand);border-radius:4px;padding:1px 5px;margin-bottom:2px;}
+.ex-tag{display:inline-block;font-size:10px;background:#e7f4ec;color:var(--brand);border-radius:4px;padding:1px 5px;margin-bottom:2px;}
 .ex-jp{font-size:15px;color:#333;}
 .ex-rm{font-size:13px;color:#999;font-style:italic;}
 .ex-id{font-size:14px;color:#555;}
@@ -75,7 +75,7 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:16px;margin-top:8px;}
 
 .quiz-choices{display:flex;flex-direction:column;gap:8px;}
 .quiz-choice{background:#fff;border:1.5px solid #ddd;border-radius:10px;padding:14px 16px;font-size:16px;cursor:pointer;text-align:left;font-family:inherit;color:#333;transition:all .12s;}
-.quiz-choice:hover:not(:disabled){background:#f5f8fc;border-color:var(--brand);}
+.quiz-choice:hover:not(:disabled){background:#f2faf5;border-color:var(--brand);}
 .quiz-choice:disabled{cursor:default;}
 .quiz-choice.correct{background:#e8f5e9;border-color:#4caf50;color:#2e7d32;font-weight:700;}
 .quiz-choice.wrong{background:#ffebee;border-color:#e55353;color:#c62828;font-weight:700;}
@@ -91,7 +91,7 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:16px;margin-top:8px;}
 .typing-input.correct{border-color:#4caf50;background:#e8f5e9;}
 .typing-input.wrong{border-color:#e55353;background:#ffebee;}
 .typing-submit{width:100%;margin-top:10px;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
-.typing-submit:hover{background:#1049a0;}
+.typing-submit:hover{background:#458C63;}
 .typing-result{text-align:center;margin-top:14px;min-height:60px;font-size:14px;}
 .typing-result.ok{color:#2e7d32;font-weight:700;}
 .typing-result.ng{color:#c62828;font-weight:700;}
@@ -118,8 +118,8 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:16px;margin-top:8px;}
 .result-buttons{display:flex;flex-direction:column;gap:8px;}
 .result-buttons button{padding:12px;border:1.5px solid #ddd;border-radius:10px;background:#fff;color:#444;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;}
 .result-buttons button.primary{background:var(--brand);color:#fff;border-color:var(--brand);}
-.result-buttons button:hover:not(.primary){background:#f5f8fc;}
-.result-buttons button.primary:hover{background:#1049a0;}
+.result-buttons button:hover:not(.primary){background:#f2faf5;}
+.result-buttons button.primary:hover{background:#458C63;}
 
 /* ===== タッチデバイス :hover 対策（iOS Safari スティッキー hover 問題） ===== */
 @media (hover: none) {
@@ -143,18 +143,35 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:16px;margin-top:8px;}
 #pwInput{width:100%;padding:10px 14px;border:1.5px solid #ddd;border-radius:10px;font-size:16px;outline:none;text-align:center;letter-spacing:2px;}
 #pwInput:focus{border-color:var(--brand);}
 #pwBtn{margin-top:14px;width:100%;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
-#pwBtn:hover{background:#1049a0;}
+#pwBtn:hover{background:#458C63;}
 #pwError{color:#e44;font-size:12px;margin-top:8px;min-height:18px;}
-.week-btn{flex:1;padding:10px 6px;font-size:13px;border:1.5px solid #d8c48a;border-radius:10px;background:#fffdf5;color:#8a6d1b;font-weight:700;cursor:pointer;text-align:center;line-height:1.3;transition:all .15s;}
+.week-btn{flex:1;padding:10px 6px;font-size:13px;border:1.5px solid #bcd9c4;border-radius:10px;background:#f7fcf8;color:#3f7a58;font-weight:700;cursor:pointer;text-align:center;line-height:1.3;transition:all .15s;}
 .week-btn:hover{border-color:var(--brand);color:var(--brand);}
 .week-btn.active{background:var(--brand);color:#fff;border-color:var(--brand);}
 #weekBar{display:flex;gap:8px;padding:10px 10px 0;max-width:520px;margin:0 auto;}
-@media (hover:none){.week-btn:hover:not(.active){background:#fffdf5;color:#8a6d1b;border-color:#d8c48a;}}
+@media (hover:none){.week-btn:hover:not(.active){background:#f7fcf8;color:#3f7a58;border-color:#bcd9c4;}}
 #examView,#examResultView{display:none;width:100%;max-width:480px;margin:0 auto;padding:12px;}
 .exam-sentence{font-size:19px;line-height:1.95;color:#222;text-align:left;margin-bottom:10px;}
 .exam-sentence u{text-decoration-color:var(--brand);text-decoration-thickness:2px;text-underline-offset:3px;font-weight:700;}
-.ex-sec{display:inline-block;font-size:11px;background:#e8f0fb;color:var(--brand);border-radius:5px;padding:2px 9px;margin-bottom:10px;font-weight:700;}
+.ex-sec{display:inline-block;font-size:11px;background:#e7f4ec;color:var(--brand);border-radius:5px;padding:2px 9px;margin-bottom:10px;font-weight:700;}
 .result-wrong-item .ew-q{color:#333;margin-bottom:2px;}
+#examStartView,#examReviewView{display:none;width:100%;max-width:480px;margin:0 auto;padding:12px;}
+#examTally{text-align:center;margin-bottom:8px;}
+.tally-ok{display:inline-block;background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:3px 14px;font-size:13px;font-weight:700;margin:0 4px;}
+.tally-ng{display:inline-block;background:#ffebee;color:#c62828;border-radius:20px;padding:3px 14px;font-size:13px;font-weight:700;margin:0 4px;}
+.ex-start-desc{font-size:13px;color:#888;margin-bottom:12px;}
+.ex-last-score{font-size:22px;font-weight:900;color:#222;margin-top:6px;}
+.ex-last-detail{margin-top:6px;}
+.ex-date{display:block;font-size:11px;color:#aaa;margin-top:6px;}
+.ex-rate-sub{font-size:13px;color:#666;margin-top:8px;}
+.ex-wrong-item{padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:14px;text-align:left;}
+.ex-wrong-item:last-child{border-bottom:none;}
+.ex-wrong-q{color:#333;margin-bottom:5px;line-height:1.7;}
+.ex-wrong-q u{text-decoration-color:var(--brand);font-weight:700;}
+.ex-wrong-mine{color:#c62828;font-size:13px;}
+.ex-wrong-ans{color:#2e7d32;font-size:14px;font-weight:700;}
+.ex-perfect{text-align:center;color:#2e7d32;font-weight:700;padding:14px 0;}
+#examReviewList{background:#fff;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.08);padding:6px 14px;margin-bottom:14px;}
 </style>
 </head>
 <body>
@@ -262,6 +279,7 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:16px;margin-top:8px;}
 <!-- ===== 実戦問題画面 ===== -->
 <div id="examView">
   <div id="examProgress" style="text-align:center;font-size:13px;color:#666;margin-bottom:6px;"></div>
+  <div id="examTally"></div>
   <div style="height:4px;background:#ddd;border-radius:2px;margin-bottom:14px;"><div id="examFill" style="height:100%;background:var(--brand);border-radius:2px;transition:width .3s;"></div></div>
   <div class="quiz-card" style="text-align:left;">
     <div class="ex-sec" id="examSec"></div>
@@ -270,6 +288,23 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:16px;margin-top:8px;}
   </div>
   <div class="quiz-choices" id="examChoices"></div>
 </div>
+<div id="examStartView">
+  <div class="result-box">
+    <div class="result-title" id="examStartTitle">実戦問題</div>
+    <div class="ex-start-desc">全20問・1問5点（100点満点）</div>
+    <div id="examLastResult"></div>
+  </div>
+  <div class="result-buttons">
+    <button class="primary" id="examStartBtn">はじめる</button>
+    <button id="examWrongOnlyBtn">まちがえた問題だけやり直す</button>
+    <button id="examReviewBtn">まちがえた問題を見る</button>
+  </div>
+</div>
+<div id="examReviewView">
+  <div class="result-box"><div class="result-title" id="examReviewTitle">まちがえた問題</div></div>
+  <div id="examReviewList"></div>
+  <div class="result-buttons"><button class="primary" id="examReviewBackBtn">戻る</button></div>
+</div>
 <div id="examResultView">
   <div class="result-box">
     <div class="result-title">📝 実戦問題 結果</div>
@@ -277,12 +312,14 @@ footer{text-align:center;font-size:11px;color:#bbb;padding:16px;margin-top:8px;}
     <div class="result-rate" id="examRate"></div>
   </div>
   <div class="result-wrong" id="examWrongBox" style="display:none;">
-    <h3>まちがえた問題</h3>
+    <h3 id="examWrongTitle">まちがえた問題</h3>
     <div id="examWrongList"></div>
   </div>
   <div class="result-buttons">
-    <button class="primary" id="examRetryBtn">もう一度</button>
-    <button id="examMenuBtn">メニューに戻る</button>
+    <button class="primary" id="examRetryBtn">もう一度（全問）</button>
+    <button id="examRetryWrongBtn">まちがえた問題だけやり直す</button>
+    <button id="examBackBtn">実戦問題メニュー</button>
+    <button id="examMenuBtn">フラッシュカードに戻る</button>
   </div>
 </div>
 
@@ -1871,8 +1908,7 @@ function hideAllViews(){
   document.getElementById('typingView').style.display='none';
   document.getElementById('kanjiChoiceView').style.display='none';
   document.getElementById('resultView').style.display='none';
-  var _ev=document.getElementById('examView');if(_ev)_ev.style.display='none';
-  var _erv=document.getElementById('examResultView');if(_erv)_erv.style.display='none';
+  ['examStartView','examView','examResultView','examReviewView'].forEach(function(_id){var _e=document.getElementById(_id);if(_e)_e.style.display='none';});
 }
 
 document.getElementById('modeFlashBtn').onclick=function(){setMode('flash');};
@@ -1884,7 +1920,7 @@ document.getElementById('modeKanjiBtn').onclick=function(){setMode('kanjichoice'
 var _origSelectTab=selectTab;
 selectTab=function(i){
   currentTab=i;reviewMode=false;buildTabs();
-  if(TABS[i].isExam){hideAllViews();startExam(TABS[i].examIdx);return;}
+  if(TABS[i].isExam){showExamStart(TABS[i].examIdx);return;}
   if(currentMode==='quiz'){startQuiz();return;}
   if(currentMode==='typing'){startTyping();return;}
   if(currentMode==='kanjichoice'){startKanjiChoice();return;}
@@ -2590,23 +2626,65 @@ function showResult(mode){
 /* ===== 実戦問題モード ===== */
 var EXAM_SEC={r:'問題1・読み方',k:'問題2・漢字',f:'問題3・（　）'};
 var EXAM_PROMPT={r:'下線の読み方は？',k:'下線を漢字で書くと？',f:'（　）に入る漢字は？'};
-let examQs=[],examI=0,examScore=0,examWrong=[],examLocked=false,examWeek=0;
-function startExam(w){
-  examWeek=w;examQs=EXAMS[w].qs.slice();examI=0;examScore=0;examWrong=[];examLocked=false;
-  ['modeFlashBtn','modeQuizBtn','modeTypingBtn','modeKanjiBtn'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('active');});
+let examQs=[],examI=0,examScore=0,examWrong=[],examLocked=false,examWeek=0,examFullRun=true;
+
+function examKey(w){return 'kf_exam_w'+w;}
+function loadExamRec(w){try{return JSON.parse(localStorage.getItem(examKey(w))||'null');}catch(e){return null;}}
+function saveExamRec(w,rec){try{localStorage.setItem(examKey(w),JSON.stringify(rec));}catch(e){}}
+function examToday(){var d=new Date();return (d.getMonth()+1)+'/'+d.getDate();}
+function examPlain(s){return String(s).replace(/<[^>]*>/g,'');}
+
+/* --- スタート画面 --- */
+function showExamStart(w){
+  examWeek=w;
+  hideAllViews();
+  document.getElementById('examStartView').style.display='block';
+  document.getElementById('examStartTitle').textContent=EXAMS[w].title;
+  var rec=loadExamRec(w);
+  var box=document.getElementById('examLastResult');
+  var rBtn=document.getElementById('examWrongOnlyBtn');
+  var vBtn=document.getElementById('examReviewBtn');
+  if(rec&&typeof rec.score==='number'){
+    box.style.display='block';
+    box.innerHTML='<div class="ex-last-score">前回：'+(rec.score*5)+' / 100 点</div>'+
+      '<div class="ex-last-detail"><span class="tally-ok">◯ 正解 '+rec.score+'</span>'+
+      '<span class="tally-ng">✗ まちがい '+(rec.total-rec.score)+'</span>'+
+      '<span class="ex-date">'+(rec.date||'')+'</span></div>';
+  } else { box.style.display='none'; }
+  var nw=(rec&&rec.wrong)?rec.wrong.length:0;
+  if(nw){
+    rBtn.style.display='block'; rBtn.textContent='✗ まちがえた '+nw+' 問だけやり直す';
+    vBtn.style.display='block'; vBtn.textContent='📋 まちがえた問題を見る（'+nw+'問）';
+  } else { rBtn.style.display='none'; vBtn.style.display='none'; }
+}
+
+/* --- 出題 --- */
+function startExam(w,onlyIdx){
+  examWeek=w;
+  var all=EXAMS[w].qs;
+  var idxs=(onlyIdx&&onlyIdx.length)?onlyIdx.slice():all.map(function(_,i){return i;});
+  examFullRun=(idxs.length===all.length);
+  examQs=idxs.map(function(i){return examMakeItem(i,all[i]);});
+  examI=0;examScore=0;examWrong=[];examLocked=false;
   hideAllViews();
   document.getElementById('examView').style.display='block';
   renderExam();
 }
+function examMakeItem(i,q){
+  var correct=q.choices[q.answer];
+  var ch=shuffleArr(q.choices.slice());
+  return {i:i,q:q,choices:ch,answer:ch.indexOf(correct)};
+}
 function renderExam(){
-  var q=examQs[examI];examLocked=false;
-  document.getElementById('examProgress').textContent='第'+(examWeek+1)+'週｜'+(examI+1)+' / '+examQs.length;
+  var item=examQs[examI],q=item.q;examLocked=false;
+  document.getElementById('examProgress').textContent='第'+(examWeek+1)+'週｜'+(examI+1)+' / '+examQs.length+(examFullRun?'':'（まちがい直し）');
+  document.getElementById('examTally').innerHTML='<span class="tally-ok">◯ '+examScore+'</span><span class="tally-ng">✗ '+examWrong.length+'</span>';
   document.getElementById('examFill').style.width=((examI+1)/examQs.length*100)+'%';
   document.getElementById('examSec').textContent=EXAM_SEC[q.t];
   document.getElementById('examSentence').innerHTML=q.s;
   document.getElementById('examPrompt').textContent=EXAM_PROMPT[q.t];
   var box=document.getElementById('examChoices');box.innerHTML='';
-  q.choices.forEach(function(ch,i){
+  item.choices.forEach(function(ch,i){
     var b=document.createElement('button');b.className='quiz-choice';
     b.innerHTML='<span class="num">'+(i+1)+'</span>'+kcEsc(ch);
     b.onclick=function(){answerExam(i,b);};
@@ -2615,39 +2693,85 @@ function renderExam(){
 }
 function answerExam(i,btn){
   if(examLocked)return;examLocked=true;
-  var q=examQs[examI];
+  var item=examQs[examI],q=item.q;
   var btns=document.getElementById('examChoices').querySelectorAll('.quiz-choice');
   btns.forEach(function(b){b.disabled=true;});
-  btns[q.answer].classList.add('correct');
-  if(i===q.answer){examScore++;}else{btn.classList.add('wrong');examWrong.push(q);}
+  btns[item.answer].classList.add('correct');
+  if(i===item.answer){examScore++;}
+  else{btn.classList.add('wrong');examWrong.push({i:item.i,q:q,chosen:item.choices[i]});}
+  document.getElementById('examTally').innerHTML='<span class="tally-ok">◯ '+examScore+'</span><span class="tally-ng">✗ '+examWrong.length+'</span>';
   setTimeout(function(){
     examI++;
     if(examI<examQs.length)renderExam();else finishExam();
-  }, i===q.answer?600:1050);
+  }, i===item.answer?600:1100);
 }
+
+/* --- 結果 --- */
 function finishExam(){
   hideAllViews();
   document.getElementById('examResultView').style.display='block';
   var total=examQs.length;
-  document.getElementById('examScore').textContent=(examScore*5)+' / 100';
-  document.getElementById('examRate').textContent='正解 '+examScore+' / '+total+'（'+Math.round(examScore/total*100)+'%）';
+  var wrongIdx=examWrong.map(function(x){return x.i;});
+  var rec=loadExamRec(examWeek)||{};
+  if(examFullRun){rec.score=examScore;rec.total=total;rec.date=examToday();}
+  rec.wrong=wrongIdx;
+  saveExamRec(examWeek,rec);
+
+  document.getElementById('examScore').textContent=(examFullRun?(examScore*5)+' / 100':examScore+' / '+total);
+  document.getElementById('examRate').innerHTML='<span class="tally-ok">◯ 正解 '+examScore+' 問</span>'+
+    '<span class="tally-ng">✗ まちがい '+(total-examScore)+' 問</span>'+
+    '<div class="ex-rate-sub">正答率 '+Math.round(examScore/total*100)+'%</div>';
+
   var wb=document.getElementById('examWrongBox'),wl=document.getElementById('examWrongList');
   if(examWrong.length){
     wb.style.display='block';wl.innerHTML='';
-    examWrong.forEach(function(q){
-      var d=document.createElement('div');d.className='result-wrong-item';
-      d.innerHTML='<div class="ew-q">'+q.s+'</div><div class="r">正解：'+kcEsc(q.choices[q.answer])+'</div>';
-      wl.appendChild(d);
-    });
-  }else{wb.style.display='none';}
+    document.getElementById('examWrongTitle').textContent='まちがえた問題（'+examWrong.length+'問）';
+    examWrong.forEach(function(x){wl.appendChild(examWrongItem(x.q,x.chosen));});
+  } else {
+    wb.style.display='block';wl.innerHTML='<div class="ex-perfect">全問正解です！すばらしい 🎉</div>';
+    document.getElementById('examWrongTitle').textContent='まちがえた問題';
+  }
+  document.getElementById('examRetryWrongBtn').style.display=examWrong.length?'block':'none';
 }
+function examWrongItem(q,chosen){
+  var d=document.createElement('div');d.className='ex-wrong-item';
+  var html='<div class="ex-wrong-q">'+q.s+'</div>';
+  if(chosen)html+='<div class="ex-wrong-mine">✗ あなたの答え：'+kcEsc(chosen)+'</div>';
+  html+='<div class="ex-wrong-ans">◯ 正解：'+kcEsc(q.choices[q.answer])+'</div>';
+  d.innerHTML=html;return d;
+}
+
+/* --- まちがい復習リスト --- */
+function showExamReview(w){
+  hideAllViews();
+  document.getElementById('examReviewView').style.display='block';
+  var rec=loadExamRec(w)||{};
+  var list=document.getElementById('examReviewList');list.innerHTML='';
+  document.getElementById('examReviewTitle').textContent=EXAMS[w].title+'　まちがえた問題';
+  (rec.wrong||[]).forEach(function(i){
+    var q=EXAMS[w].qs[i];
+    if(q)list.appendChild(examWrongItem(q));
+  });
+  if(!(rec.wrong||[]).length)list.innerHTML='<div class="ex-perfect">まちがえた問題はありません。</div>';
+}
+
+/* --- ボタン --- */
+document.getElementById('examStartBtn').onclick=function(){startExam(examWeek);};
+document.getElementById('examWrongOnlyBtn').onclick=function(){
+  var rec=loadExamRec(examWeek)||{};startExam(examWeek,rec.wrong||[]);
+};
+document.getElementById('examReviewBtn').onclick=function(){showExamReview(examWeek);};
+document.getElementById('examReviewBackBtn').onclick=function(){showExamStart(examWeek);};
 document.getElementById('examRetryBtn').onclick=function(){startExam(examWeek);};
+document.getElementById('examRetryWrongBtn').onclick=function(){
+  startExam(examWeek,examWrong.map(function(x){return x.i;}));
+};
+document.getElementById('examBackBtn').onclick=function(){showExamStart(examWeek);};
 document.getElementById('examMenuBtn').onclick=function(){
   currentMode='flash';
   ['modeFlashBtn','modeQuizBtn','modeTypingBtn','modeKanjiBtn'].forEach(function(id,ix){document.getElementById(id).classList.toggle('active',ix===0);});
   selectTab(0);
 };
-
 selectWeek(0);
 </script>
 </body>
